@@ -39,8 +39,8 @@ kill or crash cannot reliably emit an exit. Treat missing completion as an infer
 incomplete attempt with an observation window, not proof of intentional abandonment.
 
 Ravensight built-in level detections match substrings in event names. Avoid putting
-`level` on every event indiscriminately: an inventory_action_completed event with a
-level property can be mistaken for level completion. Keep contextual location on
+`level`, `location`, or `track` on every event indiscriminately: an inventory_action_completed event with a
+level property (or either alias) can be mistaken for level completion. Keep contextual location on
 unrelated events under a different property such as context_level, and document it.
 See ravensight.md before choosing names or location fields.
 

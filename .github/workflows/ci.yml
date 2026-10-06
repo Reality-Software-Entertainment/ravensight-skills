@@ -4,10 +4,11 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node: [20, 24]
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,5 +17,5 @@ jobs:
       - run: npm test
       - uses: actions/upload-artifact@v4
         with:
-          name: ravensight-skills-node-${{ matrix.node }}
+          name: ravensight-skills-${{ matrix.os }}-node-${{ matrix.node }}
           path: dist/*

@@ -52,7 +52,7 @@ test('refuses symlink destinations and preserves external content', t => {
   const project = workspace(t);
   const outside = workspace(t);
   writeFileSync(join(outside, 'keep.txt'), 'untouched');
-  symlinkSync(outside, join(project, '.agents'), 'dir');
+  symlinkSync(outside, join(project, '.agents'), process.platform === 'win32' ? 'junction' : 'dir');
   assert.equal(run(cli, ['--agent', 'codex', '--project', project]).status, 1);
   assert.deepEqual(readdirSync(outside), ['keep.txt']);
 });
@@ -65,15 +65,15 @@ test('refuses a symlink inside an existing skill and extra customer files', t =>
   writeFileSync(join(installed, 'notes.md'), 'keep');
   assert.equal(run(cli, args).status, 1);
   assert.equal(readFileSync(join(installed, 'notes.md'), 'utf8'), 'keep');
-  symlinkSync(join(source, 'SKILL.md'), join(installed, 'linked.md'));
+  symlinkSync(source, join(installed, 'linked'), process.platform === 'win32' ? 'junction' : 'dir');
   assert.equal(run(cli, args).status, 1);
 });
 
 test('npm tarball runs offline and includes only distributable files', t => {
   const temp = workspace(t);
   const cache = join(temp, 'cache');
-  const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const [pack] = JSON.parse(execFileSync(npm, ['pack', '--json', '--ignore-scripts', '--cache', cache, '--pack-destination', temp], { cwd: root, encoding: 'utf8' }));
+  const npmArgs = [process.env.npm_execpath];
+  const [pack] = JSON.parse(execFileSync(process.execPath, [...npmArgs, 'pack', '--json', '--ignore-scripts', '--cache', cache, '--pack-destination', temp], { cwd: root, encoding: 'utf8' }));
   // Release downloads must contain exactly the tested source, not an older pack.
   const published = readFileSync(join(root, 'dist', pack.filename));
   assert.ok(published.equals(readFileSync(join(temp, pack.filename))), 'Rebuild the instrumentation download after changing the pack');
@@ -85,7 +85,7 @@ test('npm tarball runs offline and includes only distributable files', t => {
   assert.ok(files.every(file => /^(LICENSE|README\.md|package\.json|bin\/install\.mjs|skills\/ravensight-instrumentation\/(SKILL\.md|references\/[^/]+\.md|agents\/openai\.yaml))$/.test(file)), files.join('\n'));
   const project = join(temp, 'game with spaces');
   mkdirSync(project);
-  const result = spawnSync(npm, ['exec', '--offline', '--yes', '--ignore-scripts', '--cache', cache, '--package', join(temp, pack.filename), '--', 'ravensight-skills', '--agent', 'codex', '--project', project], { cwd: temp, encoding: 'utf8' });
+  const result = spawnSync(process.execPath, [...npmArgs, 'exec', '--offline', '--yes', '--ignore-scripts', '--cache', cache, '--package', join(temp, pack.filename), '--', 'ravensight-skills', '--agent', 'codex', '--project', project], { cwd: temp, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   assert.ok(existsSync(join(project, '.agents/skills/ravensight-instrumentation/SKILL.md')));
 });

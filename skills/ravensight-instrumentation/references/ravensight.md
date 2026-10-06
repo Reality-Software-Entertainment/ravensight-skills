@@ -36,7 +36,8 @@ Ravensight.track_event("level_completed", {
 
 Use it where completion is committed, with real locally available values.
 The SDK handles session creation and queues events before readiness. It already
-emits game_started after session creation and game_exited during orderly shutdown;
+queues game_started during startup after its settings check, then sends it once
+the session is ready. It emits game_exited during orderly shutdown;
 check the installed version before adding lifecycle calls. flush() requests an
 attempt; it does not guarantee delivery after the process has exited.
 
@@ -53,7 +54,9 @@ attempt; it does not guarantee delivery after the process has exited.
   for dimensions that customers will group or filter on.
 - Built-in deaths match died, destroyed, or killed. Level starts match start,
   begin, or enter; completions match complet, finish, win, or clear. Level-based
-  analytics require a non-empty level property. Names are interpreted heuristically:
+  analytics use the first non-empty property in this order: level, location, track.
+  Preserve existing location/track integrations; they already supply level context.
+  Names are interpreted heuristically:
   review unrelated events for accidental classification before broadening tracking.
 - Retain existing event contracts and funnels. Custom names can serve custom
   funnels; adding aliases solely to match built-in rules can double-count.
