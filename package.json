@@ -1,0 +1,28 @@
+{
+  "name": "ravensight-skills",
+  "version": "0.1.0",
+  "description": "Customer-facing agent skills for Ravensight game analytics",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "ravensight-skills": "bin/install.mjs"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "homepage": "https://github.com/Reality-Software-Entertainment/ravensight-skills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Reality-Software-Entertainment/ravensight-skills.git"
+  }
+}
