@@ -2,7 +2,7 @@
 name: ravensight-instrumentation
 description: Audit, expand, or initialize Ravensight tracking in a game or application repository. Find missing journey coverage, fix incorrect existing instrumentation, and implement meaningful events using the installed SDK. Use for tracking audits and instrumentation work in both established and new products.
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 
 # Ravensight instrumentation

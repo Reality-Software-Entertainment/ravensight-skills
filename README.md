@@ -114,7 +114,7 @@ npm run build
 No dependency installation is required. Tests exercise each install target,
 repeated installs, preservation of customer edits, unsafe destinations, and a clean
 offline install from the generated npm tarball. The build writes
-`dist/ravensight-skills-0.1.1.tgz` and a SHA-256 sidecar. A release can distribute those
+`dist/ravensight-skills-0.1.2.tgz` and a SHA-256 sidecar. A release can distribute those
 files; npm registry publication is separate. Do not replace a published version
 with different bytes. Bump the version for a release that changes the package.
 
