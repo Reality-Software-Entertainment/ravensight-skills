@@ -2,7 +2,7 @@
 name: ravensight-instrumentation
 description: Audit, expand, or initialize Ravensight tracking in a game or application repository. Find missing journey coverage, fix incorrect existing instrumentation, and implement meaningful events using the installed SDK. Use for tracking audits and instrumentation work in both established and new products.
 metadata:
-  version: "0.1.3"
+  version: "0.1.4"
 ---
 
 # Ravensight instrumentation
@@ -48,7 +48,11 @@ An event sent only to another provider does not establish Ravensight coverage.
 Do not remove that provider or start dual collection without the requested scope.
 
 Read [the Ravensight integration reference](references/ravensight.md) before
-changing calls. If the user authorized consulting Ravensight data and an MCP connection is
+changing calls. If the public docs MCP is connected, use `search_docs` and
+`get_doc` for current integration guidance, checking source links, revisions, and
+staleness. Keep the installed SDK authoritative for its available methods.
+Ordinary docs links remain the fallback; do not require or install an MCP connection.
+If the user authorized consulting Ravensight data and an MCP connection is
 available, use the bounded procedure there to compare code and live data. Missing access must not
 block local work. Absence from a time window does not prove a code defect.
 

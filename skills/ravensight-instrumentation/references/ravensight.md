@@ -4,6 +4,19 @@ Verify against the installed SDK and current [integration docs](https://ravensig
 This pack is a workflow, not an SDK implementation. Keep integrations compatible
 with the customer's actual version; do not invent methods for engines you cannot inspect.
 
+## Optional public documentation MCP
+
+Endpoint: https://docs-mcp.ravensight.io/mcp (remote HTTP, no authentication).
+Setup: https://ravensight.io/docs/#docs-mcp. If connected, search only documentation
+questions with `search_docs`, then use returned IDs in `get_doc`. Follow
+`next_offset` with the returned document revision for long records. Check `stale`
+and cite the source URL. If unavailable, use the ordinary integration docs links.
+Do not send private source, credentials, or player data as search queries.
+
+This documentation service is free and reads only published documentation. It is
+separate from the authenticated, metered analytics MCP described below. A docs
+answer is not evidence that a customer's event was actually received.
+
 ## Engine routing
 
 Official SDK repositories live under https://github.com/Reality-Software-Entertainment/.
@@ -85,7 +98,7 @@ available tool schemas; tool exposure and permissions can vary.
    wrong environment, or an unexercised path. A matching name alone does not prove
    the correct trigger or payload. Do not call either case verified coverage.
 
-Avoid repeated unbounded queries. MCP is metered separately from the customer's
+Avoid repeated unbounded queries. Analytics MCP is metered separately from the customer's
 agent/model usage. Source scans propose findings; the local coding agent performs
 code edits. Neither MCP access nor this skill grants deployment permission.
 

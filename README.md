@@ -96,11 +96,20 @@ supported repository connection. Analysis can work on supplied files; implementa
 requires editing tools. This repository does not install a ChatGPT connector or
 grant repository access. Verify the client's current skill-loading support.
 
+## Optional documentation connection
+
+Connect the free public documentation MCP at `https://docs-mcp.ravensight.io/mcp`
+using remote HTTP and no authentication. [Client setup](https://ravensight.io/docs/#docs-mcp).
+The skill can then use `search_docs` and `get_doc` for current guidance, source links,
+and revisions. This is separate from the paid analytics MCP; it has no studio or
+player data access. The installer does not configure MCP, and ordinary docs links
+remain the fallback when no connection is available.
+
 ## Requirements and costs
 
 Local source is enough to audit and implement. The skill routes to the relevant
 Ravensight SDK documentation and can use an existing authorized MCP connection
-for live evidence. MCP is optional and metered; your agent provider may charge for
+for live evidence. Analytics MCP is optional and metered; your agent provider may charge for
 its own work. Added tracking can increase event usage. The skill does not require
 source uploads, paid scans, production traffic, or deployments.
 
@@ -114,7 +123,7 @@ npm run build
 No dependency installation is required. Tests exercise each install target,
 repeated installs, preservation of customer edits, unsafe destinations, and a clean
 offline install from the generated npm tarball. The build writes
-`dist/ravensight-skills-0.1.3.tgz` and a SHA-256 sidecar. A release can distribute those
+`dist/ravensight-skills-0.1.4.tgz` and a SHA-256 sidecar. A release can distribute those
 files; npm registry publication is separate. Do not replace a published version
 with different bytes. Bump the version for a release that changes the package.
 
