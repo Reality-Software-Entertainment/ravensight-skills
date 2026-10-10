@@ -38,10 +38,15 @@ Use an explicit exit/cancel event only where that action is observable. A proces
 kill or crash cannot reliably emit an exit. Treat missing completion as an inferred
 incomplete attempt with an observation window, not proof of intentional abandonment.
 
-Ravensight built-in level detections match substrings in event names. Avoid putting
-`level`, `location`, or `track` on every event indiscriminately: an inventory_action_completed event with a
-level property (or either alias) can be mistaken for level completion. Keep contextual location on
-unrelated events under a different property such as context_level, and document it.
+Ravensight reads `rs_kind` (`level_start`, `level_complete`, `death`, `none`) before
+it falls back to substrings in event names; an unknown value falls through to the
+name match. Set `rs_kind` to `none` on an event that should not count, and never
+rename an event to dodge a heuristic. Keys starting with `rs_` are reserved.
+
+`level`, `location` and `track` in event data fold into one place column, first
+non-empty in that order. Only progression events should carry a place, so an
+inventory_action_completed event is not mistaken for a level completion. Keep
+other context under a different key, and document it.
 See ravensight.md before choosing names or location fields.
 
 ## Volume discipline

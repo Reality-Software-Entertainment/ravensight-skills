@@ -89,3 +89,23 @@ test('npm tarball runs offline and includes only distributable files', t => {
   assert.equal(result.status, 0, result.stderr);
   assert.ok(existsSync(join(project, '.agents/skills/ravensight-instrumentation/SKILL.md')));
 });
+
+test('SKILL.md version matches package.json', () => {
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const skill = readFileSync(join(source, 'SKILL.md'), 'utf8');
+  const match = skill.match(/^\s*version:\s*"([^"]+)"/m);
+  assert.ok(match, 'SKILL.md frontmatter has metadata.version');
+  assert.equal(match[1], pkg.version);
+});
+
+test('references state the rs_kind contract and drop retired advice', () => {
+  for (const name of ['ravensight.md', 'coverage.md']) {
+    const text = readFileSync(join(source, 'references', name), 'utf8');
+    assert.ok(text.includes('rs_kind'), `${name} mentions rs_kind`);
+    assert.ok(!text.includes('context_level'), `${name} no longer advises context_level`);
+    assert.ok(!text.includes('Preserve existing location/track integrations'), `${name} drops the old location/track advice`);
+    assert.ok(!/[\u2013\u2014]/.test(text), `${name} has no em or en dashes`);
+  }
+  const skill = readFileSync(join(source, 'SKILL.md'), 'utf8');
+  assert.ok(skill.includes('dashboard/how-the-built-in-detections-read-your-events'));
+});

@@ -65,12 +65,19 @@ attempt; it does not guarantee delivery after the process has exited.
   limits before sizing changes. Keep payloads well below ceilings.
 - Property breakdowns use top-level payload keys. Prefer bounded flat properties
   for dimensions that customers will group or filter on.
-- Built-in deaths match died, destroyed, or killed. Level starts match start,
-  begin, or enter; completions match complet, finish, win, or clear. Level-based
-  analytics use the first non-empty property in this order: level, location, track.
-  Preserve existing location/track integrations; they already supply level context.
-  Names are interpreted heuristically:
-  review unrelated events for accidental classification before broadening tracking.
+- Built-in detections read an event's `rs_kind` first. Its values are `level_start`,
+  `level_complete`, `death` and `none`. An unknown value falls through to the
+  event-name match: deaths match died, destroyed, or killed; level starts match
+  start, begin, or enter; completions match complet, finish, win, or clear. `none`
+  opts an event out of the built-in detections, so set `rs_kind` instead of renaming
+  an event to dodge a heuristic. Keys starting with `rs_` are reserved.
+- `level`, `location` and `track` in event data fold into one place column, taking
+  the first non-empty value in that order. Only progression events should carry a
+  place; put other context under a different key. Review unrelated events for
+  accidental classification before broadening tracking.
+- The stuck rule fires on ten or more repeats of one event at the same level in a
+  session of under twenty events. Rage quit still reads names only (died,
+  destroyed); `rs_kind` does not change it.
 - Retain existing event contracts and funnels. Custom names can serve custom
   funnels; adding aliases solely to match built-in rules can double-count.
 - Use SDK-supported playtest context where relevant. Do not spoof synthetic tags

@@ -2,7 +2,7 @@
 name: ravensight-instrumentation
 description: Audit, expand, or initialize Ravensight tracking in a game or application repository. Find missing journey coverage, fix incorrect existing instrumentation, and implement meaningful events using the installed SDK. Use for tracking audits and instrumentation work in both established and new products.
 metadata:
-  version: "0.1.5"
+  version: "0.1.6"
 ---
 
 # Ravensight instrumentation
@@ -51,6 +51,8 @@ Read [the Ravensight integration reference](references/ravensight.md) before
 changing calls. If the public docs MCP is connected, use `search_docs` and
 `get_doc` for current integration guidance, checking source links, revisions, and
 staleness. Keep the installed SDK authoritative for its available methods.
+When it is connected, also fetch `dashboard/how-the-built-in-detections-read-your-events`
+with `get_doc` before classifying any event.
 Ordinary docs links remain the fallback; do not require or install an MCP connection.
 If the user authorized consulting Ravensight data and an MCP connection is
 available, use the bounded procedure there to compare code and live data. Missing access must not
