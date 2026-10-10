@@ -21,7 +21,7 @@ requested and produces an event catalog, a coverage report, and verification evi
 With Node 20 or later, run from your game directory:
 
 ```sh
-npm exec --package github:Reality-Software-Entertainment/ravensight-skills -- ravensight-skills --agent codex --project .
+npx ravensight-skills --agent codex --project .
 ```
 
 Choose one project target:
@@ -123,7 +123,7 @@ npm run build
 No dependency installation is required. Tests exercise each install target,
 repeated installs, preservation of customer edits, unsafe destinations, and a clean
 offline install from the generated npm tarball. The build writes
-`dist/ravensight-skills-0.1.4.tgz` and a SHA-256 sidecar. A release can distribute those
+`dist/ravensight-skills-0.1.5.tgz` and a SHA-256 sidecar. A release can distribute those
 files; npm registry publication is separate. Do not replace a published version
 with different bytes. Bump the version for a release that changes the package.
 

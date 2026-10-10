@@ -108,7 +108,7 @@ If the project already has ravensight-doctor, use its local documented JSON comm
 for a static check. If installing it is in scope, the public docs specify:
 
 ```sh
-npx github:Reality-Software-Entertainment/ravensight-doctor --json
+npx --yes ravensight-doctor --json
 ```
 
 This command downloads and executes code. Prefer the project's pinned version when

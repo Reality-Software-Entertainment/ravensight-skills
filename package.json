@@ -1,6 +1,6 @@
 {
   "name": "ravensight-skills",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Customer-facing agent skills for Ravensight game analytics",
   "type": "module",
   "license": "MIT",
@@ -23,6 +23,9 @@
   "homepage": "https://github.com/Reality-Software-Entertainment/ravensight-skills",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Reality-Software-Entertainment/ravensight-skills.git"
+    "url": "git+https://github.com/Reality-Software-Entertainment/ravensight-skills.git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
