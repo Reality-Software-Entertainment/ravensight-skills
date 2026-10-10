@@ -1,7 +1,7 @@
 name: Publish to npm
 on:
   push:
-    tags: ['v*']
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
 permissions:
   contents: read
   id-token: write
@@ -23,4 +23,11 @@ jobs:
             echo "Tag $GITHUB_REF_NAME does not match package.json version" >&2
             exit 1
           fi
+      - name: Skip when this version is already on npm
+        id: published
+        run: |
+          n=$(node -p "require('./package.json').name")
+          v=$(node -p "require('./package.json').version")
+          if npm view "$n@$v" version >/dev/null 2>&1; then echo "skip=true" >> "$GITHUB_OUTPUT"; fi
       - run: npm publish --provenance --access public
+        if: steps.published.outputs.skip != 'true'
