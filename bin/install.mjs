@@ -12,7 +12,8 @@ Usage: ravensight-skills --agent codex|claude|copilot|generic --project PATH [--
 Copies SKILL.md, references, and agent metadata into the chosen project.
 No network, credentials, global configuration, or game-code changes.
 Identical installs are a no-op. Different existing content is never overwritten unless you pass --force,
-which first moves it to <skill folder>.bak-<timestamp> and then installs.
+which first moves it to <project>/.ravensight-skills-backup/${name}.bak-<timestamp>
+(outside the skills folder, so agents never see a duplicate) and then installs.
 Use generic for an agent that will read skills/${name}/SKILL.md explicitly.`;
 
 function stat(path) {
@@ -60,22 +61,30 @@ function main(args) {
       console.log(`Already installed: ${target}`); return;
     }
     if (!force) throw new Error(`Existing skill differs; preserve your changes before replacing it: ${target}. Rerun with --force to back it up and replace it.`);
-    backup = `${target}.bak-${new Date().toISOString().replace(/[-:.]/g, '').replace('T', '-').slice(0, 15)}`;
+    backup = join(root, '.ravensight-skills-backup', `${name}.bak-${new Date().toISOString().replace(/[-:.]/g, '').replace('T', '-').slice(0, 15)}`);
     if (stat(backup)) throw new Error(`Backup already exists: ${backup}`);
     if (dryRun) { console.log(`Would back up ${target} to ${backup} and install ${files.length} files`); return; }
+    mkdirSync(dirname(backup), { recursive: true });
     renameSync(target, backup);
   }
   if (dryRun) { console.log(`Would install ${files.length} files to ${target}`); return; }
   mkdirSync(dirname(target), { recursive: true });
   // Exclusive creation makes concurrent installs fail rather than overwrite.
-  mkdirSync(target);
+  let created = false;
   try {
+    mkdirSync(target);
+    created = true;
     for (const file of files) {
       mkdirSync(dirname(join(target, file)), { recursive: true });
+      if (process.env.RAVENSIGHT_SKILLS_TEST_FAIL_WRITE === file) throw new Error(`Simulated write failure for ${file}`);
       writeFileSync(join(target, file), contents.get(file), { flag: 'wx' });
     }
   } catch (error) {
-    rmSync(target, { recursive: true, force: true });
+    if (created) rmSync(target, { recursive: true, force: true });
+    if (backup) {
+      renameSync(backup, target);
+      error.message += ` (your previous copy was restored to ${target})`;
+    }
     throw error;
   }
   console.log(`${backup ? `Backed up previous copy to: ${backup}\n` : ''}Installed: ${target}\nAsk your agent to use ravensight-instrumentation to audit or expand tracking. Reload its skills if needed.`);

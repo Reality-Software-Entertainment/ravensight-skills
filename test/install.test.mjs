@@ -136,11 +136,29 @@ test('--force backs up a differing copy then installs the current one', t => {
   assert.equal(result.status, 0, result.stderr);
   assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), readFileSync(join(source, 'SKILL.md'), 'utf8'));
   assert.equal(existsSync(join(installed, 'extra.md')), false);
-  const backups = readdirSync(join(project, 'skills')).filter(n => n.startsWith('ravensight-instrumentation.bak-'));
+  const backupRoot = join(project, '.ravensight-skills-backup');
+  const backups = readdirSync(backupRoot);
   assert.equal(backups.length, 1);
-  assert.equal(readFileSync(join(project, 'skills', backups[0], 'SKILL.md'), 'utf8'), 'customer changes');
-  assert.equal(readFileSync(join(project, 'skills', backups[0], 'extra.md'), 'utf8'), 'mine');
+  assert.match(backups[0], /^ravensight-instrumentation\.bak-/);
+  assert.equal(readFileSync(join(backupRoot, backups[0], 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(backupRoot, backups[0], 'extra.md'), 'utf8'), 'mine');
+  // Nothing under the skills folder but the skill itself may carry a SKILL.md.
+  assert.deepEqual(readdirSync(join(project, 'skills')), ['ravensight-instrumentation']);
   // Identical install with --force stays a no-op and makes no backup.
   assert.match(run(cli, [...args, '--force']).stdout, /Already installed/);
-  assert.equal(readdirSync(join(project, 'skills')).length, 2);
+  assert.equal(readdirSync(backupRoot).length, 1);
+});
+
+test('--force restores the original copy when the install fails midway', t => {
+  const project = workspace(t);
+  const args = ['--agent', 'generic', '--project', project];
+  assert.equal(run(cli, args).status, 0);
+  const installed = join(project, 'skills/ravensight-instrumentation');
+  writeFileSync(join(installed, 'SKILL.md'), 'customer changes');
+  const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_WRITE: 'SKILL.md' } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /previous copy was restored/);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.deepEqual(readdirSync(join(project, 'skills')), ['ravensight-instrumentation']);
+  assert.deepEqual(readdirSync(join(project, '.ravensight-skills-backup')), []);
 });
