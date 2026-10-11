@@ -162,3 +162,32 @@ test('--force restores the original copy when the install fails midway', t => {
   assert.deepEqual(readdirSync(join(project, 'skills')), ['ravensight-instrumentation']);
   assert.deepEqual(readdirSync(join(project, '.ravensight-skills-backup')), []);
 });
+
+test('--force refuses a symlinked backup folder and moves nothing', t => {
+  const project = workspace(t);
+  const outside = workspace(t);
+  const args = ['--agent', 'generic', '--project', project];
+  assert.equal(run(cli, args).status, 0);
+  const installed = join(project, 'skills/ravensight-instrumentation');
+  writeFileSync(join(installed, 'SKILL.md'), 'customer changes');
+  symlinkSync(outside, join(project, '.ravensight-skills-backup'));
+  const result = run(cli, [...args, '--force']);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /symbolic link/);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.deepEqual(readdirSync(outside), []);
+});
+
+test('a failed restore keeps the original error and names the backup', t => {
+  const project = workspace(t);
+  const args = ['--agent', 'generic', '--project', project];
+  assert.equal(run(cli, args).status, 0);
+  writeFileSync(join(project, 'skills/ravensight-instrumentation/SKILL.md'), 'customer changes');
+  const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_WRITE: 'SKILL.md', RAVENSIGHT_SKILLS_TEST_FAIL_RESTORE: '1' } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Simulated write failure/);
+  assert.match(result.stderr, /restore failed: Simulated restore failure; your previous copy is at .*ravensight-instrumentation\.bak-/);
+  const backupRoot = join(project, '.ravensight-skills-backup');
+  const [kept] = readdirSync(backupRoot);
+  assert.equal(readFileSync(join(backupRoot, kept, 'SKILL.md'), 'utf8'), 'customer changes');
+});

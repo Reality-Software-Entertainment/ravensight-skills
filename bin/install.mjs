@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { lstatSync, mkdirSync, renameSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../skills/ravensight-instrumentation');
@@ -64,7 +64,11 @@ function main(args) {
     backup = join(root, '.ravensight-skills-backup', `${name}.bak-${new Date().toISOString().replace(/[-:.]/g, '').replace('T', '-').slice(0, 15)}`);
     if (stat(backup)) throw new Error(`Backup already exists: ${backup}`);
     if (dryRun) { console.log(`Would back up ${target} to ${backup} and install ${files.length} files`); return; }
-    mkdirSync(dirname(backup), { recursive: true });
+    const backupParent = dirname(backup);
+    const parentEntry = stat(backupParent);
+    if (parentEntry && (parentEntry.isSymbolicLink() || !parentEntry.isDirectory())) throw new Error(`Refusing non-directory or symbolic link: ${backupParent}`);
+    mkdirSync(backupParent, { recursive: true });
+    if (!realpathSync(backupParent).startsWith(root + sep)) throw new Error(`Backup folder resolves outside the project: ${backupParent}`);
     renameSync(target, backup);
   }
   if (dryRun) { console.log(`Would install ${files.length} files to ${target}`); return; }
@@ -82,8 +86,13 @@ function main(args) {
   } catch (error) {
     if (created) rmSync(target, { recursive: true, force: true });
     if (backup) {
-      renameSync(backup, target);
-      error.message += ` (your previous copy was restored to ${target})`;
+      try {
+        if (process.env.RAVENSIGHT_SKILLS_TEST_FAIL_RESTORE === '1') throw new Error('Simulated restore failure');
+        renameSync(backup, target);
+        error.message += ` (your previous copy was restored to ${target})`;
+      } catch (restoreError) {
+        error.message += ` (restore failed: ${restoreError.message}; your previous copy is at ${backup})`;
+      }
     }
     throw error;
   }
