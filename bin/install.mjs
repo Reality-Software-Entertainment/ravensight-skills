@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmSync } from 'node:fs';
+import { lstatSync, mkdirSync, renameSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,12 +7,12 @@ const source = resolve(dirname(fileURLToPath(import.meta.url)), '../skills/raven
 const name = 'ravensight-instrumentation';
 const destinations = { codex: '.agents/skills', claude: '.claude/skills', copilot: '.github/skills', generic: 'skills' };
 const help = `Ravensight instrumentation skill installer
-Usage: ravensight-skills --agent codex|claude|copilot|generic --project PATH [--dry-run]
+Usage: ravensight-skills --agent codex|claude|copilot|generic --project PATH [--dry-run] [--force]
 
 Copies SKILL.md, references, and agent metadata into the chosen project.
 No network, credentials, global configuration, or game-code changes.
-Identical installs are a no-op. Different existing content is never overwritten.
-For updates, back up and remove the existing skill directory, then reinstall.
+Identical installs are a no-op. Different existing content is never overwritten unless you pass --force,
+which first moves it to <skill folder>.bak-<timestamp> and then installs.
 Use generic for an agent that will read skills/${name}/SKILL.md explicitly.`;
 
 function stat(path) {
@@ -29,13 +29,14 @@ function tree(root, prefix = '') {
 }
 function main(args) {
   if (args.length === 0 || args.includes('--help')) { console.log(help); return; }
-  let agent, project, dryRun = false;
+  let agent, project, dryRun = false, force = false;
   const seen = new Set();
   for (let i = 0; i < args.length; i++) {
     const flag = args[i];
     if (seen.has(flag)) throw new Error(`Repeated option: ${flag}`);
     seen.add(flag);
     if (flag === '--dry-run') { dryRun = true; continue; }
+    if (flag === '--force') { force = true; continue; }
     if (flag !== '--agent' && flag !== '--project') throw new Error(`Unknown option: ${flag}`);
     const value = args[++i];
     if (!value || value.startsWith('--')) throw new Error(`Missing value for ${flag}`);
@@ -52,12 +53,17 @@ function main(args) {
   }
   const files = ['SKILL.md', ...tree(join(source, 'references')).map(p => join('references', p)), ...tree(join(source, 'agents')).map(p => join('agents', p))].sort();
   const contents = new Map(files.map(file => [file, readFileSync(join(source, file))]));
+  let backup;
   if (stat(target)) {
     const existing = tree(target).sort();
     if (JSON.stringify(existing) === JSON.stringify(files) && files.every(file => readFileSync(join(target, file)).equals(contents.get(file)))) {
       console.log(`Already installed: ${target}`); return;
     }
-    throw new Error(`Existing skill differs; preserve your changes before replacing it: ${target}`);
+    if (!force) throw new Error(`Existing skill differs; preserve your changes before replacing it: ${target}. Rerun with --force to back it up and replace it.`);
+    backup = `${target}.bak-${new Date().toISOString().replace(/[-:.]/g, '').replace('T', '-').slice(0, 15)}`;
+    if (stat(backup)) throw new Error(`Backup already exists: ${backup}`);
+    if (dryRun) { console.log(`Would back up ${target} to ${backup} and install ${files.length} files`); return; }
+    renameSync(target, backup);
   }
   if (dryRun) { console.log(`Would install ${files.length} files to ${target}`); return; }
   mkdirSync(dirname(target), { recursive: true });
@@ -72,6 +78,6 @@ function main(args) {
     rmSync(target, { recursive: true, force: true });
     throw error;
   }
-  console.log(`Installed: ${target}\nAsk your agent to use ravensight-instrumentation to audit or expand tracking. Reload its skills if needed.`);
+  console.log(`${backup ? `Backed up previous copy to: ${backup}\n` : ''}Installed: ${target}\nAsk your agent to use ravensight-instrumentation to audit or expand tracking. Reload its skills if needed.`);
 }
 try { main(process.argv.slice(2)); } catch (error) { console.error(`Installation failed: ${error.message}`); process.exitCode = 1; }

@@ -53,8 +53,9 @@ the same agent. No edits to existing project instructions are required.
 
 The installer only writes skill files. It does not change game code, configure an
 account, or contact Ravensight. Identical installs are a no-op. Different existing
-content and symlink destinations are refused. To update, preserve local edits,
-remove the old skill folder yourself, and reinstall. To uninstall, remove that folder.
+content and symlink destinations are refused. To update, rerun the same command
+with `--force`: the old folder is moved to `<skill folder>.bak-<timestamp>` beside it
+and the new copy is installed, so local edits stay in the backup. To uninstall, remove that folder.
 
 ## Use it
 

@@ -109,3 +109,38 @@ test('references state the rs_kind contract and drop retired advice', () => {
   const skill = readFileSync(join(source, 'SKILL.md'), 'utf8');
   assert.ok(skill.includes('dashboard/how-the-built-in-detections-read-your-events'));
 });
+
+test('plain install of a differing copy hints at --force and changes nothing', t => {
+  const project = workspace(t);
+  const args = ['--agent', 'generic', '--project', project];
+  assert.equal(run(cli, args).status, 0);
+  const installed = join(project, 'skills/ravensight-instrumentation');
+  writeFileSync(join(installed, 'SKILL.md'), 'customer changes');
+  const result = run(cli, args);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Rerun with --force/);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+});
+
+test('--force backs up a differing copy then installs the current one', t => {
+  const project = workspace(t);
+  const args = ['--agent', 'generic', '--project', project];
+  assert.equal(run(cli, args).status, 0);
+  const installed = join(project, 'skills/ravensight-instrumentation');
+  writeFileSync(join(installed, 'SKILL.md'), 'customer changes');
+  writeFileSync(join(installed, 'extra.md'), 'mine');
+  const dry = run(cli, [...args, '--force', '--dry-run']);
+  assert.equal(dry.status, 0, dry.stderr);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  const result = run(cli, [...args, '--force']);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), readFileSync(join(source, 'SKILL.md'), 'utf8'));
+  assert.equal(existsSync(join(installed, 'extra.md')), false);
+  const backups = readdirSync(join(project, 'skills')).filter(n => n.startsWith('ravensight-instrumentation.bak-'));
+  assert.equal(backups.length, 1);
+  assert.equal(readFileSync(join(project, 'skills', backups[0], 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(project, 'skills', backups[0], 'extra.md'), 'utf8'), 'mine');
+  // Identical install with --force stays a no-op and makes no backup.
+  assert.match(run(cli, [...args, '--force']).stdout, /Already installed/);
+  assert.equal(readdirSync(join(project, 'skills')).length, 2);
+});
