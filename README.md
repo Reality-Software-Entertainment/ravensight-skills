@@ -13,8 +13,12 @@ internal development instructions.
 
 The instrumentation skill covers decisions, outcomes, failures, retries, exits,
 and useful context across applicable game systems. It audits existing event
-choices and preserves useful tracking. Your agent performs implementation when
-requested and produces an event catalog, a coverage report, and verification evidence.
+choices and preserves useful tracking. It starts by writing an acceptance matrix
+of the player questions the data must answer (how long, how deep, which choice and
+what it caused, what was unlocked or earned, why players leave, retries, and your
+own), then judges the work against it. Your agent performs implementation when
+requested and produces an event catalog, a coverage report, and a completion
+report with three separate verdicts: delivery, schema and coverage.
 
 ## Install
 
@@ -131,9 +135,23 @@ npm run build
 No dependency installation is required. Tests exercise each install target,
 repeated installs, preservation of customer edits, unsafe destinations, and a clean
 offline install from the generated npm tarball. The build writes
-`dist/ravensight-skills-0.1.6.tgz` and a SHA-256 sidecar. A release can distribute those
+`dist/ravensight-skills-<version>.tgz` and a SHA-256 sidecar. A release can distribute those
 files; npm registry publication is separate. Do not replace a published version
 with different bytes. Bump the version for a release that changes the package.
+
+Each reference records the public docs catalog revision and the date it was
+checked against. Before a release, check them against the live docs:
+
+```sh
+npm run check-docs
+```
+
+It fetches `https://www.ravensight.io/docs/catalog.json` and exits 1 when a
+reference's recorded revision is behind the catalog, a quoted document changed, or
+a quote no longer matches word for word (exit 2 if the catalog cannot be read).
+`--catalog PATH` checks a saved copy. It needs network access, so it is a manual
+step and never part of `npm test`. When it fails, re-read the changed docs, update
+the references, then update every header to the new revision and date.
 
 Add future customer-facing workflows under `skills/<skill-name>/`. Keep the
 installer's supported choices and tests aligned with the published catalog.

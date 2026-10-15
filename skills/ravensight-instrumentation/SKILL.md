@@ -2,7 +2,7 @@
 name: ravensight-instrumentation
 description: Audit, expand, or initialize Ravensight tracking in a game or application repository. Find missing journey coverage, fix incorrect existing instrumentation, and implement meaningful events using the installed SDK. Use for tracking audits and instrumentation work in both established and new products.
 metadata:
-  version: "0.1.8"
+  version: "0.1.9"
 ---
 
 # Ravensight instrumentation
@@ -10,7 +10,9 @@ metadata:
 Help the developer reconstruct the player's whole journey, including decisions,
 outcomes, friction, failures, retries, and exits. Default to comprehensive coverage
 of meaningful state transitions across the requested product or subsystem.
-Installing an SDK or adding a few success events is not completion.
+Installing an SDK or adding a few success events is not completion, and neither
+is a list of SDK events: completion is judged against the player questions in the
+acceptance matrix below.
 
 ## Choose the requested mode
 
@@ -26,6 +28,22 @@ request authorizes relevant local edits without a second approval for every even
 Respect explicit exclusions and the selected subsystem. If the request is limited
 to a selection or diff, follow its callers and outcomes far enough to assess it;
 report wider opportunities separately. Do not silently turn it into a full rewrite.
+
+## First deliverable: the acceptance matrix
+
+Before changing any tracking code, read [the acceptance matrix](references/acceptance.md)
+and write the matrix into the project (`docs/analytics/acceptance.md` or the
+project's equivalent; inline for a chat-only audit). One row per player question:
+how long they play, where they stop or decide, which choice and what consequence,
+how deep they get, how much they unlocked, what they earned or lost, what makes
+them leave or return, how often they retry, plus the game's own questions. Columns:
+metric, source of truth (the authoritative state change that emits it), run or
+attempt join, lifecycle and rollback test, received-data query.
+
+Time, depth, progression, decision consequences, exits and retries each need an
+explicit answer. "Not tracked" is allowed only when the row says so and why. Draft
+the matrix from the request and a first read of the game, refine it during the
+baseline, and judge the finished work against it, not against an event count.
 
 ## 1. Establish the baseline
 
@@ -48,11 +66,17 @@ An event sent only to another provider does not establish Ravensight coverage.
 Do not remove that provider or start dual collection without the requested scope.
 
 Read [the Ravensight integration reference](references/ravensight.md) before
-changing calls. If the public docs MCP is connected, use `search_docs` and
+changing calls. Each reference names the docs catalog revision and date it was
+checked against; where the live docs differ, the live docs win. For iOS, Android
+and the other native SDKs, read its native section: a playtest id is never copied
+into durable storage, the player opt-out and the game's stop-all switch are
+different controls, and a native persona run needs a free runner preflight before
+any paid job. If the public docs MCP is connected, use `search_docs` and
 `get_doc` for current integration guidance, checking source links, revisions, and
 staleness. Keep the installed SDK authoritative for its available methods.
 When it is connected, also fetch `dashboard/how-the-built-in-detections-read-your-events`
-with `get_doc` before classifying any event.
+with `get_doc` before classifying any event. Read an event's `rs_kind` first; set
+`none` to opt an event out, and never rename an event to dodge a heuristic.
 Ordinary docs links remain the fallback; do not require or install an MCP connection.
 If the user authorized consulting Ravensight data and an MCP connection is
 available, use the bounded procedure there to compare code and live data. Missing access must not
@@ -119,13 +143,19 @@ production telemetry to prove a change. Do not provision accounts, start paid
 scans, upload source, push, or deploy unless the user authorized those actions.
 
 Keep code inspected, locally exercised, and observed arriving as distinct evidence
-levels. A passing static scanner does not prove broad coverage or delivery.
+levels. Report three verdicts, each on its own evidence: **delivery** (events
+arrive and are stored), **schema** (names, kinds, reserved keys, bounded volume)
+and **coverage** (which acceptance matrix question is still unanswerable). A green
+doctor result is a static integration check, never a whole-product certificate.
+Run each row's received-data query; take MAX of cumulative counters per run, never
+SUM.
 If runtime access is unavailable, finish the implementation and provide exact
 verification steps and unresolved limitations instead of claiming success.
 
 Update the existing event catalog and coverage report in their established
 locations; otherwise use docs/analytics/events.md and docs/analytics/coverage.md.
 For chat-only audit requests, return the report inline unless a file was requested.
-Summarize existing tracking retained, defects repaired, events/properties added,
-remaining gaps, volume assumptions, and verification evidence. A full audit can
+Finish with the completion report in the validation reference: the three verdicts,
+existing tracking retained, defects repaired, events/properties added, remaining
+gaps, volume assumptions, and verification evidence. A full audit can
 legitimately conclude that no additional events are needed.

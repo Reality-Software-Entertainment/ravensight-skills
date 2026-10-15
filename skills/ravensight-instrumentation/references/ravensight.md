@@ -1,5 +1,7 @@
 # Ravensight integration reference
 
+> Docs catalog revision: `9a52b74ca50388e3d87f1dbd8ae20122cbdc22e783c9c4d24e1aa8264e9cc9b5`, checked 2026-10-14 against https://www.ravensight.io/docs/catalog.json.
+
 Verify against the installed SDK and current [integration docs](https://ravensight.io/docs/).
 This pack is a workflow, not an SDK implementation. Keep integrations compatible
 with the customer's actual version; do not invent methods for engines you cannot inspect.
@@ -54,6 +56,42 @@ the session is ready. It emits game_exited during orderly shutdown;
 check the installed version before adding lifecycle calls. flush() requests an
 attempt; it does not guarantee delivery after the process has exited.
 
+## Native and mobile SDKs
+
+The iOS, Android, Unity, Unreal, C++ and Odin SDKs share one contract. Read the
+installed SDK's README for exact names; these semantics decide where code goes.
+
+- **A playtest identity is never durable.** In a Ravensight Playtest run the SDK
+  takes its token and run id from the launch environment (iOS), intent extras
+  (Android) or environment variables (desktop). On iOS the device id is then
+  `pt-<runId>`, held in memory only: the saved id is never read or written. Do
+  not copy the SDK's device id, or any id derived from it, into the game's save
+  file, preferences, keychain or cloud save, because in a persona run that would
+  mirror a synthetic id into storage a real player later inherits. Mint the game's
+  own `run_id` or `attempt_id` separately. Leave the playtest token and run id
+  unset in a build for real players.
+- **Two privacy controls, not one.** The player opt-out (iOS
+  `Ravensight.setTrackingEnabled(false)`, Android
+  `Ravensight.setTrackingEnabled(context, false)`) is the player's choice: it is
+  saved, survives a restart, drops the queue and makes no request of any kind, not
+  even the startup check. The game's runtime switch (iOS
+  `RavensightConfiguration.enabled` or `Ravensight.shared?.setEnabled(_:)`) stops
+  everything for this run and is never saved; use it for a debug build or a region
+  where the game sends nothing. Wire a settings toggle to the opt-out, not to the
+  runtime switch, and never let the runtime switch's `true` override a saved
+  opt-out. The reset (`resetDeviceId()`) is a third, separate call that starts a
+  fresh identity. In a playtest run the saved opt-out is ignored and the opt-out
+  and reset calls only log a line.
+- **Lifecycle is part of the matrix.** Backgrounding, a swipe away and a cold
+  relaunch are the exits a mobile player actually takes; test each against the
+  acceptance matrix's run join. Exit events are not guaranteed on a kill.
+- **Preflight a native persona run before any paid job.** Native playtest adapters
+  are experimental until tested against the build and device. Run the free
+  `ravensight-playtest check` first, confirm the automation server, simulator or
+  device and the build launch, and confirm one local launch reports a playtest
+  session, before suggesting `ravensight-playtest run`, which charges. Do not
+  start a paid job without the user's authorization.
+
 ## Payload and analytics contract
 
 - The HTTP event envelope uses event, data, and optionally timestamp. Inspect
@@ -65,19 +103,28 @@ attempt; it does not guarantee delivery after the process has exited.
   limits before sizing changes. Keep payloads well below ceilings.
 - Property breakdowns use top-level payload keys. Prefer bounded flat properties
   for dimensions that customers will group or filter on.
-- Built-in detections read an event's `rs_kind` first. Its values are `level_start`,
-  `level_complete`, `death` and `none`. An unknown value falls through to the
-  event-name match: deaths match died, destroyed, or killed; level starts match
-  start, begin, or enter; completions match complet, finish, win, or clear. `none`
-  opts an event out of the built-in detections, so set `rs_kind` instead of renaming
-  an event to dodge a heuristic. Keys starting with `rs_` are reserved.
+- Built-in detections read an event's `rs_kind` first, before its name. Read it
+  first when you classify an event. Its values are `level_start`, `level_complete`,
+  `death` and `none`; an unknown value falls through to the name match. `none` opts
+  an event out of the built-in detections, so set `rs_kind` instead of renaming an
+  event to dodge a heuristic: a rename breaks funnels and history, `rs_kind` does
+  not. Keys starting with `rs_` are reserved.
 - `level`, `location` and `track` in event data fold into one place column, taking
   the first non-empty value in that order. Only progression events should carry a
   place; put other context under a different key. Review unrelated events for
   accidental classification before broadening tracking.
-- The stuck rule fires on ten or more repeats of one event at the same level in a
-  session of under twenty events. Rage quit still reads names only (died,
-  destroyed); `rs_kind` does not change it.
+- The death, rage quit and stuck rules, word for word from the public docs (see
+  the header for the revision). Re-check them with `get_doc`, or with
+  `scripts/check-docs.mjs` from the ravensight-skills repository, before relying
+  on a threshold.
+
+Quoted from `dashboard/how-the-built-in-detections-read-your-events` at revision `537ff17f016de8f32d97b978259bdbf34d38425aaaa2bd60be360aa3d9c8c27c`:
+
+> - **Deaths** are events whose name contains `died`, `destroyed`, or `killed` (lowercase substring match, so `player_died` and `ship_destroyed` both count).
+> - **An explicit `rs_kind` comes first.** Set `rs_kind` in the event data to `level_start`, `level_complete`, `death`, or `none` and the level funnel, per-level deaths, journeys and the death count read it before the name. `none` opts an event out, so `checkout_started` with `rs_kind: "none"` is not a level start. An unknown value falls through to the name match. Keys that start with `rs_` are reserved for Ravensight. The rage quit rules below read it too.
+> - **Rage quit likely** flags a session with 3 or more deaths in its last 5 events, 3 or more deaths at the same level, or a final death followed by more than 10 minutes of silence inside the queried window. A death here is an event sent with `rs_kind: "death"`, whatever its name, so a `run_ended` event with `rs_kind: "death"` counts. Without a known `rs_kind`, the first two read `died`/`destroyed` names and the last reads a name containing `died`; `rs_kind: "none"` is never a death.
+> - **Potentially stuck** flags a session that repeats one event 10 or more times at the same level while the whole session has fewer than 20 events. The same event at a new level each time is movement, not stuck. Events with no place are grouped together, so ten repeats of a placeless event in a short session count; send a place or accept it.
+
 - Retain existing event contracts and funnels. Custom names can serve custom
   funnels; adding aliases solely to match built-in rules can double-count.
 - Use SDK-supported playtest context where relevant. Do not spoof synthetic tags
@@ -121,4 +168,8 @@ npx --yes ravensight-doctor --json
 This command downloads and executes code. Prefer the project's pinned version when
 available. Run without --report for a local check; --report uploads results and
 requires authorization and configured credentials. Doctor complements source and
-runtime review; it does not establish complete journey coverage.
+runtime review; it does not establish complete journey coverage. A green (`pass`)
+doctor result is a static integration check of the source tree, never a
+certificate for the whole product: it says nothing about whether the acceptance
+matrix's questions are answerable. `--live` proves that one test event can be
+delivered and stored with the key, not that the game's own events are.

@@ -340,3 +340,70 @@ test('a backup copy that fails verification is deleted and the original untouche
   assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
   assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
 });
+
+const referencesDir = join(source, 'references');
+const referenceNames = readdirSync(referencesDir).filter(name => name.endsWith('.md'));
+const revisionHeader = /^> Docs catalog revision: `([0-9a-f]{64})`, checked (\d{4}-\d{2}-\d{2}) against https:\/\/www\.ravensight\.io\/docs\/catalog\.json\.$/m;
+
+test('every reference records the docs catalog revision and date it was checked against', () => {
+  assert.ok(referenceNames.length >= 4);
+  const revisions = new Set();
+  for (const name of referenceNames) {
+    const text = readFileSync(join(referencesDir, name), 'utf8');
+    const match = text.match(revisionHeader);
+    assert.ok(match, `${name} has a docs catalog revision header`);
+    revisions.add(match[1]);
+    assert.ok(!/[\u2013\u2014]/.test(text), `${name} has no em or en dashes`);
+  }
+  assert.equal(revisions.size, 1, 'all references were checked against one catalog revision');
+  assert.ok(!/[\u2013\u2014]/.test(readFileSync(join(source, 'SKILL.md'), 'utf8')), 'SKILL.md has no em or en dashes');
+});
+
+test('the rage quit text follows the live detections docs, not the retired name-only rule', () => {
+  const text = readFileSync(join(referencesDir, 'ravensight.md'), 'utf8');
+  assert.ok(!text.includes('Rage quit still reads names only'));
+  assert.ok(text.includes('A death here is an event sent with `rs_kind: "death"`, whatever its name'));
+  assert.ok(text.includes('Quoted from `dashboard/how-the-built-in-detections-read-your-events`'));
+  for (const name of ['ravensight.md', 'coverage.md']) {
+    const ref = readFileSync(join(referencesDir, name), 'utf8');
+    assert.match(ref, /never\s+rename\s+an\s+event\s+to\s+dodge\s+a\s+heuristic|instead\s+of\s+renaming\s+an\s+event\s+to\s+dodge\s+a\s+heuristic/);
+  }
+});
+
+test('the skill requires an acceptance matrix first and three separate verdicts', () => {
+  const skill = readFileSync(join(source, 'SKILL.md'), 'utf8');
+  assert.ok(skill.indexOf('First deliverable: the acceptance matrix') < skill.indexOf('## 1. Establish the baseline'));
+  assert.ok(skill.includes('](references/acceptance.md)'));
+  const acceptance = readFileSync(join(referencesDir, 'acceptance.md'), 'utf8');
+  for (const column of ['Metric', 'Source of truth', 'Run or attempt join', 'Lifecycle and rollback test', 'Received-data query']) assert.ok(acceptance.includes(`| ${column} |`), column);
+  for (const required of ['Time:', 'Exits:', 'Decision consequences:', 'Depth:', 'Progression:', 'Retries:']) assert.ok(acceptance.includes(required), required);
+  assert.match(acceptance, /\*\*MAX\*\* per run, never its SUM/);
+  const validation = readFileSync(join(referencesDir, 'validation.md'), 'utf8');
+  for (const verdict of ['### Delivery:', '### Schema:', '### Coverage:', '## Review checklist']) assert.ok(validation.includes(verdict), verdict);
+  assert.ok(validation.includes('static integration check, never a whole-product certificate'));
+  const ravensight = readFileSync(join(referencesDir, 'ravensight.md'), 'utf8');
+  assert.ok(ravensight.includes('## Native and mobile SDKs'));
+  for (const phrase of ['never durable', 'Two privacy controls', 'Preflight a native persona run before any paid job']) assert.ok(ravensight.includes(phrase), phrase);
+});
+
+test('check-docs is manual: npm test never runs it, and it judges a catalog offline', async t => {
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  assert.ok(!pkg.scripts.test.includes('check-docs'));
+  assert.ok(!pkg.files.includes('scripts'));
+  const { checkReferences, DEFAULT_CATALOG } = await import('../scripts/check-docs.mjs');
+  assert.equal(DEFAULT_CATALOG, 'https://www.ravensight.io/docs/catalog.json');
+  // Build a catalog from the references themselves: current, then behind, then a changed quote.
+  const text = readFileSync(join(referencesDir, 'ravensight.md'), 'utf8');
+  const revision = text.match(revisionHeader)[1];
+  const quote = text.match(/^Quoted from `([^`]+)` at revision `([0-9a-f]{64})`:\n\n((?:> .*\n)+)/m);
+  assert.ok(quote, 'ravensight.md quotes the detections doc');
+  const content = quote[3].split('\n').map(line => line.replace(/^> ?/, '')).join('\n \n');
+  const catalog = { revision, documents: [{ id: quote[1], revision: quote[2], content }] };
+  assert.deepEqual(checkReferences(referencesDir, catalog).problems, []);
+  assert.equal(checkReferences(referencesDir, { ...catalog, revision: 'f'.repeat(64) }).problems.length, referenceNames.length);
+  const changed = { revision, documents: [{ id: quote[1], revision: 'e'.repeat(64), content: content.replace('10 minutes', '15 minutes') }] };
+  const problems = checkReferences(referencesDir, changed).problems;
+  assert.ok(problems.some(p => p.includes('changed')), problems.join('\n'));
+  assert.ok(problems.some(p => p.includes('no longer matches')), problems.join('\n'));
+  assert.ok(t);
+});

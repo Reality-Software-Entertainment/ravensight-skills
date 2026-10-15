@@ -1,6 +1,9 @@
 # Journey coverage
 
-Use this as a discovery checklist, not a requirement to invent systems the
+> Docs catalog revision: `9a52b74ca50388e3d87f1dbd8ae20122cbdc22e783c9c4d24e1aa8264e9cc9b5`, checked 2026-10-14 against https://www.ravensight.io/docs/catalog.json.
+
+Start from the [acceptance matrix](acceptance.md): every system below exists to
+answer one of its rows. Use this as a discovery checklist, not a requirement to invent systems the
 product does not contain. Choose event names from existing conventions and the
 installed backend contract. Examples below are candidate concepts, not SDK APIs.
 
@@ -38,10 +41,13 @@ Use an explicit exit/cancel event only where that action is observable. A proces
 kill or crash cannot reliably emit an exit. Treat missing completion as an inferred
 incomplete attempt with an observation window, not proof of intentional abandonment.
 
-Ravensight reads `rs_kind` (`level_start`, `level_complete`, `death`, `none`) before
-it falls back to substrings in event names; an unknown value falls through to the
-name match. Set `rs_kind` to `none` on an event that should not count, and never
-rename an event to dodge a heuristic. Keys starting with `rs_` are reserved.
+Ravensight reads `rs_kind` (`level_start`, `level_complete`, `death`, `none`) first,
+before it falls back to substrings in event names; an unknown value falls through
+to the name match. Read an existing event's `rs_kind` before classifying it. `none`
+opts an event out, so set it on an event that should not count, and never rename
+an event to dodge a heuristic. The death count and the rage quit rules both read
+`rs_kind`; see ravensight.md for the quoted rules. Keys starting with `rs_` are
+reserved.
 
 `level`, `location` and `track` in event data fold into one place column, first
 non-empty in that order. Only progression events should carry a place, so an
