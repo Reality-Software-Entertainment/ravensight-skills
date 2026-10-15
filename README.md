@@ -139,6 +139,13 @@ offline install from the generated npm tarball. The build writes
 files; npm registry publication is separate. Do not replace a published version
 with different bytes. Bump the version for a release that changes the package.
 
+A `vX.Y.Z` tag that equals the package version runs `.github/workflows/publish.yml`,
+which publishes through npm trusted publishing (OIDC), with no token. That job is
+skipped until the owner, on npmjs.com, opens package `ravensight-skills`, Settings,
+Trusted publishing, adds GitHub Actions for
+`Reality-Software-Entertainment/ravensight-skills` with workflow file `publish.yml`,
+and then sets the repository variable `NPM_TRUSTED_PUBLISHING` to `true`.
+
 Each reference records the public docs catalog revision and the date it was
 checked against. Before a release, check them against the live docs:
 

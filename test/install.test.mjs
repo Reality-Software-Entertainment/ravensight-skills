@@ -327,6 +327,7 @@ test('a symlinked ~/.ravensight itself is refused', t => {
   const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, HOME: home, USERPROFILE: home } });
   assert.equal(result.status, 1);
   assert.match(result.stderr, /symbolic link/);
+  assert.match(result.stderr, /Use --backup-dir PATH or --no-backup/);
   assert.deepEqual(readdirSync(outside), []);
   assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
 });

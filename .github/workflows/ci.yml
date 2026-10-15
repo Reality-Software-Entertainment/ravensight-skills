@@ -4,11 +4,10 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node: [20, 24]
-        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,5 +16,20 @@ jobs:
       - run: npm test
       - uses: actions/upload-artifact@v4
         with:
-          name: ravensight-skills-${{ matrix.os }}-node-${{ matrix.node }}
+          name: ravensight-skills-ubuntu-latest-node-${{ matrix.node }}
+          path: dist/*
+  # Windows minutes bill at twice the Linux rate and this job exists to catch
+  # path bugs, so it runs only for pushes to main and for tags, not every branch.
+  test-windows:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ravensight-skills-windows-latest-node-24
           path: dist/*

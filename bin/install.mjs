@@ -54,6 +54,9 @@ function copyVerified(from, to) {
     throw error;
   }
 }
+// Every refusal of a backup location ends with the same way out, on every platform.
+const backupHint = ' Use --backup-dir PATH or --no-backup instead.';
+function backupError(message) { return new Error(`${message}${backupHint}`); }
 function checkBackupParent(parent, trustedBase) {
   // Every existing component from the trusted base down must be a real directory.
   let current = trustedBase;
@@ -61,7 +64,7 @@ function checkBackupParent(parent, trustedBase) {
   const chain = [current, ...parts.map(part => (current = join(current, part)))];
   for (const path of chain) {
     const entry = stat(path);
-    if (entry && (entry.isSymbolicLink() || !entry.isDirectory())) throw new Error(`Refusing non-directory or symbolic link: ${path}`);
+    if (entry && (entry.isSymbolicLink() || !entry.isDirectory())) throw backupError(`Refusing non-directory or symbolic link: ${path}.`);
   }
 }
 function main(args) {
@@ -105,11 +108,10 @@ function main(args) {
       snapshot = { dirs: dirs(target), files: new Map(tree(target).map(file => [file, { data: readFileSync(join(target, file)), mode: modeOf(join(target, file)) }])) };
     } else {
       let parent, trustedBase;
-      const hint = ' Use --backup-dir PATH or --no-backup instead.';
       if (backupDir) { parent = resolve(backupDir); trustedBase = parent; }
       else {
         let home;
-        try { home = realpathSync(homedir()); } catch (error) { throw new Error(`Cannot find your home folder for the backup (${error.message}).${hint}`); }
+        try { home = realpathSync(homedir()); } catch (error) { throw backupError(`Cannot find your home folder for the backup (${error.message}).`); }
         trustedBase = join(home, '.ravensight');
         parent = join(trustedBase, 'skills-backup', `${basename(root)}-${createHash('sha256').update(root).digest('hex').slice(0, 8)}`);
       }
@@ -117,17 +119,17 @@ function main(args) {
       if (parent === dirname(target)) throw new Error(`Backup folder cannot be the skills folder itself, agents would see a duplicate skill: ${parent}`);
       if (backup === target || backup.startsWith(target + sep)) throw new Error(`Backup location overlaps the skill folder: ${backup}`);
       let exists;
-      try { exists = stat(backup); } catch (error) { throw new Error(`Cannot use ${parent} for the backup (${error.message}).${hint}`); }
+      try { exists = stat(backup); } catch (error) { throw backupError(`Cannot use ${parent} for the backup (${error.message}).`); }
       if (exists) throw new Error(`Backup already exists: ${backup}`);
       if (dryRun) { console.log(`Would back up ${target} to ${backup} and install ${files.length} files`); return; }
       if (backupDir) {
         // Explicit location: the backup folder itself must not be a symlink (its parents are used as typed).
         const entry = stat(parent);
-        if (entry && (entry.isSymbolicLink() || !entry.isDirectory())) throw new Error(`Refusing non-directory or symbolic link: ${parent}`);
+        if (entry && (entry.isSymbolicLink() || !entry.isDirectory())) throw backupError(`Refusing non-directory or symbolic link: ${parent}.`);
         mkdirPrivate(parent);
       } else {
         checkBackupParent(parent, trustedBase);
-        try { mkdirPrivate(parent); } catch (error) { throw new Error(`Cannot create ${parent} (${error.message}).${hint}`); }
+        try { mkdirPrivate(parent); } catch (error) { throw backupError(`Cannot create ${parent} (${error.message}).`); }
       }
       const realParent = realpathSync(parent);
       if (realParent === dirname(realpathSync(target))) throw new Error(`Backup folder cannot be the skills folder itself, agents would see a duplicate skill: ${parent}`);
