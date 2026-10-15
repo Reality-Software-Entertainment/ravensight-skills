@@ -60,8 +60,9 @@ outside your repository, so nothing new appears in git and no agent sees a dupli
 verified before the original is removed, and the new copy is installed, so local edits stay in the
 backup. The installer prints the backup path. If the install fails partway, your previous copy is restored.
 Use `--backup-dir PATH` to keep backups somewhere else, or `--no-backup` to replace without keeping one
-(the installer says so when it does). Neither option is accepted without `--force`, and a symbolic link
-or a folder inside the skill is refused as a backup location. To uninstall, remove that folder.
+(the installer says so when it does). Neither option is accepted without `--force`. A backup folder that is itself a symbolic link, or that is
+the skills folder or inside the skill, is refused. Backups made by 0.1.7 and earlier stay in
+`<project>/.ravensight-skills-backup/`; delete that folder when you no longer need it. To uninstall, remove that folder.
 
 ## Use it
 

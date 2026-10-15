@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cpSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmSync } from 'node:fs';
+import { chmodSync, cpSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { basename, dirname, join, resolve, sep } from 'node:path';
@@ -32,15 +32,22 @@ function tree(root, prefix = '') {
   });
 }
 function mkdirPrivate(path) { mkdirSync(path, { recursive: true, mode: 0o700 }); }
+function dirs(root, prefix = '') {
+  return readdirSync(join(root, prefix), { withFileTypes: true }).filter(e => e.isDirectory()).flatMap(e => [join(prefix, e.name), ...dirs(root, join(prefix, e.name))]).sort();
+}
+const modeOf = path => lstatSync(path).mode & 0o777;
 function sameTree(a, b) {
   const left = tree(a).sort();
-  return JSON.stringify(left) === JSON.stringify(tree(b).sort()) && left.every(file => readFileSync(join(a, file)).equals(readFileSync(join(b, file))));
+  return JSON.stringify(left) === JSON.stringify(tree(b).sort())
+    && JSON.stringify(dirs(a)) === JSON.stringify(dirs(b))
+    && left.every(file => readFileSync(join(a, file)).equals(readFileSync(join(b, file))) && modeOf(join(a, file)) === modeOf(join(b, file)));
 }
-// Copy, then prove the copy matches before the caller removes the original (the
-// destination may be on another filesystem, so a rename is not available).
+// Copy, then prove the copy matches (files, bytes, modes, empty folders) before the caller
+// removes the original (the destination may be on another filesystem, so no rename).
 function copyVerified(from, to) {
   try {
     cpSync(from, to, { recursive: true, errorOnExist: true, force: false });
+    if (process.env.RAVENSIGHT_SKILLS_TEST_FAIL_VERIFY === '1') throw new Error('Simulated copy verification failure');
     if (!sameTree(from, to)) throw new Error(`Copy did not match the original: ${to}`);
   } catch (error) {
     rmSync(to, { recursive: true, force: true });
@@ -95,41 +102,50 @@ function main(args) {
     if (!force) throw new Error(`Existing skill differs; preserve your changes before replacing it: ${target}. Rerun with --force to back it up and replace it.`);
     if (noBackup) {
       if (dryRun) { console.log(`Would replace ${target} WITHOUT a backup and install ${files.length} files`); return; }
-      snapshot = new Map(tree(target).map(file => [file, readFileSync(join(target, file))]));
-      rmSync(target, { recursive: true });
+      snapshot = { dirs: dirs(target), files: new Map(tree(target).map(file => [file, { data: readFileSync(join(target, file)), mode: modeOf(join(target, file)) }])) };
     } else {
       let parent, trustedBase;
+      const hint = ' Use --backup-dir PATH or --no-backup instead.';
       if (backupDir) { parent = resolve(backupDir); trustedBase = parent; }
       else {
-        const home = realpathSync(homedir());
+        let home;
+        try { home = realpathSync(homedir()); } catch (error) { throw new Error(`Cannot find your home folder for the backup (${error.message}).${hint}`); }
         trustedBase = join(home, '.ravensight');
         parent = join(trustedBase, 'skills-backup', `${basename(root)}-${createHash('sha256').update(root).digest('hex').slice(0, 8)}`);
       }
       backup = join(parent, `${name}.bak-${new Date().toISOString().replace(/[-:.]/g, '').replace('T', '-').slice(0, 15)}`);
+      if (parent === dirname(target)) throw new Error(`Backup folder cannot be the skills folder itself, agents would see a duplicate skill: ${parent}`);
       if (backup === target || backup.startsWith(target + sep)) throw new Error(`Backup location overlaps the skill folder: ${backup}`);
-      if (stat(backup)) throw new Error(`Backup already exists: ${backup}`);
+      let exists;
+      try { exists = stat(backup); } catch (error) { throw new Error(`Cannot use ${parent} for the backup (${error.message}).${hint}`); }
+      if (exists) throw new Error(`Backup already exists: ${backup}`);
       if (dryRun) { console.log(`Would back up ${target} to ${backup} and install ${files.length} files`); return; }
       if (backupDir) {
-        // Explicit location: the folder itself may be a symlink only if the person typed it that way, but never silently.
+        // Explicit location: the backup folder itself must not be a symlink (its parents are used as typed).
         const entry = stat(parent);
         if (entry && (entry.isSymbolicLink() || !entry.isDirectory())) throw new Error(`Refusing non-directory or symbolic link: ${parent}`);
         mkdirPrivate(parent);
       } else {
         checkBackupParent(parent, trustedBase);
-        mkdirPrivate(parent);
+        try { mkdirPrivate(parent); } catch (error) { throw new Error(`Cannot create ${parent} (${error.message}).${hint}`); }
       }
       const realParent = realpathSync(parent);
+      if (realParent === dirname(realpathSync(target))) throw new Error(`Backup folder cannot be the skills folder itself, agents would see a duplicate skill: ${parent}`);
       if (realParent === realpathSync(target) || realParent.startsWith(realpathSync(target) + sep)) throw new Error(`Backup folder is inside the skill folder: ${parent}`);
       if (!backupDir && !realParent.startsWith(realpathSync(trustedBase) + sep)) throw new Error(`Backup folder resolves outside ${trustedBase}: ${parent}`);
       copyVerified(target, backup);
-      rmSync(target, { recursive: true });
     }
   }
   if (dryRun) { console.log(`Would install ${files.length} files to ${target}`); return; }
-  mkdirSync(dirname(target), { recursive: true });
   // Exclusive creation makes concurrent installs fail rather than overwrite.
   let created = false;
   try {
+    if (backup || snapshot) {
+      // Removing the original is inside the try: a partial removal is restored, never left half-deleted.
+      if (process.env.RAVENSIGHT_SKILLS_TEST_FAIL_REMOVE === '1') { rmSync(join(target, 'SKILL.md')); throw new Error('Simulated removal failure'); }
+      rmSync(target, { recursive: true });
+    }
+    mkdirSync(dirname(target), { recursive: true });
     mkdirSync(target);
     created = true;
     for (const file of files) {
@@ -138,23 +154,29 @@ function main(args) {
       writeFileSync(join(target, file), contents.get(file), { flag: 'wx' });
     }
   } catch (error) {
-    if (created) rmSync(target, { recursive: true, force: true });
+    if (created || backup || snapshot) rmSync(target, { recursive: true, force: true });
     if (snapshot) {
       try {
-        for (const [file, data] of snapshot) { mkdirSync(dirname(join(target, file)), { recursive: true }); writeFileSync(join(target, file), data); }
+        mkdirSync(target, { recursive: true });
+        for (const d of snapshot.dirs) mkdirSync(join(target, d), { recursive: true });
+        for (const [file, { data, mode }] of snapshot.files) { mkdirSync(dirname(join(target, file)), { recursive: true }); writeFileSync(join(target, file), data, { mode }); chmodSync(join(target, file), mode); }
         error.message += ` (your previous copy was restored to ${target})`;
       } catch (restoreError) {
         error.message += ` (restore failed: ${restoreError.message}; no backup was kept)`;
       }
     }
     if (backup) {
+      let restored = false;
       try {
         if (process.env.RAVENSIGHT_SKILLS_TEST_FAIL_RESTORE === '1') throw new Error('Simulated restore failure');
         copyVerified(backup, target);
-        rmSync(backup, { recursive: true, force: true });
+        restored = true;
         error.message += ` (your previous copy was restored to ${target})`;
+        rmSync(backup, { recursive: true });
       } catch (restoreError) {
-        error.message += ` (restore failed: ${restoreError.message}; your previous copy is at ${backup})`;
+        error.message += restored
+          ? ` (the backup at ${backup} could not be removed: ${restoreError.message}; it is a duplicate you can delete)`
+          : ` (restore failed: ${restoreError.message}; your previous copy is at ${backup})`;
       }
     }
     throw error;

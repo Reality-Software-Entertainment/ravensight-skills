@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync, existsSync } from 'node:fs';
+import { chmodSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -260,4 +260,83 @@ test('a failed restore keeps the original error and names the backup', t => {
   const parent = backupParent(project);
   const [kept] = readdirSync(parent);
   assert.equal(readFileSync(join(parent, kept, 'SKILL.md'), 'utf8'), 'customer changes');
+});
+
+test('a failing removal of the original is restored from the backup', t => {
+  const { project, args, installed } = differing(t);
+  const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_REMOVE: '1' } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Simulated removal failure \(your previous copy was restored to /);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
+  assert.deepEqual(readdirSync(backupParent(project)), []);
+});
+
+test('a failing removal with --no-backup is restored from memory', t => {
+  const { args, installed } = differing(t);
+  const result = spawnSync(process.execPath, [cli, ...args, '--force', '--no-backup'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_REMOVE: '1' } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /previous copy was restored/);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
+});
+
+test('restore keeps empty folders and file modes', t => {
+  const { args, installed } = differing(t);
+  mkdirSync(join(installed, 'empty'));
+  if (process.platform !== 'win32') chmodSync(join(installed, 'extra.md'), 0o600);
+  for (const extra of [[], ['--no-backup']]) {
+    const result = spawnSync(process.execPath, [cli, ...args, '--force', ...extra], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_WRITE: 'SKILL.md' } });
+    assert.equal(result.status, 1);
+    assert.deepEqual(existsSync(join(installed, 'empty')), true);
+    if (process.platform !== 'win32') assert.equal(statSync(join(installed, 'extra.md')).mode & 0o777, 0o600);
+  }
+});
+
+test('--backup-dir equal to the skills folder is refused', t => {
+  const { project, args, installed } = differing(t);
+  const result = run(cli, [...args, '--force', '--backup-dir', join(project, 'skills')]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /cannot be the skills folder itself/);
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
+});
+
+test('an unusable home folder points at --backup-dir and --no-backup', t => {
+  const { args, installed } = differing(t);
+  const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, HOME: join(fakeHome, 'missing'), USERPROFILE: join(fakeHome, 'missing') } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Use --backup-dir PATH or --no-backup/);
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
+});
+
+test('a ~/.ravensight that cannot be created points at the options', t => {
+  const { args, installed } = differing(t);
+  const home = workspace(t);
+  writeFileSync(join(home, '.ravensight'), 'a file');
+  const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, HOME: home, USERPROFILE: home } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Use --backup-dir PATH or --no-backup/);
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
+});
+
+test('a symlinked ~/.ravensight itself is refused', t => {
+  const { args, installed } = differing(t);
+  const home = workspace(t);
+  const outside = workspace(t);
+  symlinkSync(outside, join(home, '.ravensight'));
+  const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, HOME: home, USERPROFILE: home } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /symbolic link/);
+  assert.deepEqual(readdirSync(outside), []);
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
+});
+
+test('a backup copy that fails verification is deleted and the original untouched', t => {
+  const { project, args, installed } = differing(t);
+  const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_VERIFY: '1' } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Simulated copy verification failure/);
+  assert.deepEqual(readdirSync(backupParent(project)), []);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
 });
