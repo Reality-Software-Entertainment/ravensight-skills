@@ -58,8 +58,9 @@ attempt; it does not guarantee delivery after the process has exited.
 
 ## Native and mobile SDKs
 
-The iOS, Android, Unity, Unreal, C++ and Odin SDKs share one contract. Read the
-installed SDK's README for exact names; these semantics decide where code goes.
+These semantics were checked against the iOS and Android SDKs. Read the installed
+SDK's README for exact names and confirm the same behavior before relying on it in
+another native SDK; these semantics decide where code goes.
 
 - **A playtest identity is never durable.** In a Ravensight Playtest run the SDK
   takes its token and run id from the launch environment (iOS), intent extras
@@ -74,9 +75,9 @@ installed SDK's README for exact names; these semantics decide where code goes.
   `Ravensight.setTrackingEnabled(false)`, Android
   `Ravensight.setTrackingEnabled(context, false)`) is the player's choice: it is
   saved, survives a restart, drops the queue and makes no request of any kind, not
-  even the startup check. The game's runtime switch (iOS
-  `RavensightConfiguration.enabled` or `Ravensight.shared?.setEnabled(_:)`) stops
-  everything for this run and is never saved; use it for a debug build or a region
+  even the startup check. The runtime stop-all switch (on iOS 0.2
+  this is `RavensightConfiguration.enabled` or `Ravensight.shared?.setEnabled(_:)`;
+  0.3 adds `stopAllTelemetry()`) stops everything for this run and is never saved; use it for a debug build or a region
   where the game sends nothing. Wire a settings toggle to the opt-out, not to the
   runtime switch, and never let the runtime switch's `true` override a saved
   opt-out. The reset (`resetDeviceId()`) is a third, separate call that starts a
@@ -116,7 +117,9 @@ installed SDK's README for exact names; these semantics decide where code goes.
 - The death, rage quit and stuck rules, word for word from the public docs (see
   the header for the revision). Re-check them with `get_doc`, or with
   `scripts/check-docs.mjs` from the ravensight-skills repository, before relying
-  on a threshold.
+  on a threshold. When either reports drift, re-fetch the changed doc with
+  `get_doc` or the docs links, re-quote it here, re-stamp every reference header
+  with the new catalog revision and date, and re-run `check-docs`.
 
 Quoted from `dashboard/how-the-built-in-detections-read-your-events` at revision `537ff17f016de8f32d97b978259bdbf34d38425aaaa2bd60be360aa3d9c8c27c`:
 

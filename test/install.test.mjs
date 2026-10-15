@@ -405,5 +405,22 @@ test('check-docs is manual: npm test never runs it, and it judges a catalog offl
   const problems = checkReferences(referencesDir, changed).problems;
   assert.ok(problems.some(p => p.includes('changed')), problems.join('\n'));
   assert.ok(problems.some(p => p.includes('no longer matches')), problems.join('\n'));
-  assert.ok(t);
+  // A reference with no header, and a quote whose document left the catalog.
+  const refs = workspace(t);
+  writeFileSync(join(refs, 'bare.md'), '# No header\n');
+  writeFileSync(join(refs, 'gone.md'), `# Gone\n\n> Docs catalog revision: \`${revision}\`, checked 2026-10-14 against https://www.ravensight.io/docs/catalog.json.\n\nQuoted from \`removed/doc\` at revision \`${'a'.repeat(64)}\`:\n\n> Some text.\n`);
+  const local = checkReferences(refs, catalog).problems;
+  assert.ok(local.some(p => p.startsWith('bare.md: no "Docs catalog revision" header')), local.join('\n'));
+  assert.ok(local.some(p => p.includes('removed/doc is not in the catalog')), local.join('\n'));
+  // The command line: exit 2 with a message for an unreadable references folder, exit 1 for problems.
+  const catalogFile = join(refs, 'catalog.json');
+  writeFileSync(catalogFile, JSON.stringify(catalog));
+  const script = join(root, 'scripts/check-docs.mjs');
+  const missing = run(script, ['--catalog', catalogFile, '--references', join(refs, 'nope')]);
+  assert.equal(missing.status, 2, missing.stderr);
+  assert.match(missing.stderr, /Could not read the references at/);
+  assert.doesNotMatch(missing.stderr, /at checkReferences/);
+  assert.equal(run(script, ['--catalog', join(refs, 'absent.json')]).status, 2);
+  assert.equal(run(script, ['--catalog', catalogFile, '--references', refs]).status, 1);
+  assert.equal(run(script, ['--catalog', catalogFile]).status, 0);
 });

@@ -39,7 +39,8 @@ no such system, deferred by the developer). A blank cell is not an answer.
 | Received-data query | The query, against stored rows, that produces the metric. Write it before implementing; run it in a development environment after. |
 | Answer | Answerable, partial (say what is missing), or not tracked (say why). |
 
-A matrix row is complete only when all six cells are filled. Implementation then
+A matrix row is complete only when all seven cells are filled (the question plus
+the six columns above). Implementation then
 follows the rows, and the coverage report cites them.
 
 ## Example rows
@@ -48,7 +49,7 @@ follows the rows, and the coverage report cites them.
 | --- | --- | --- | --- | --- | --- | --- |
 | How deep do they get? | Furthest floor per run, MAX of `floor` | `floor_entered` after the floor scene finishes loading, `Dungeon.gd:212` | `run_id` minted at run start, saved with the run, reused on resume | Quit on floor 4, relaunch, resume: floor 5 continues the same `run_id`; loading the floor 2 save does not lower the run's maximum | see below | Answerable |
 | Which upgrade did they pick, and did it help? | Pick rate per upgrade; clear rate of the next floor after each pick | `upgrade_chosen` when the choice is committed to the run state, `Shop.gd:88`; `floor_cleared` | `run_id` plus `floor` | Cancel the shop: no `upgrade_chosen`; reload before confirming: one pick only | count of `upgrade_chosen` by `upgrade_id`, joined to `floor_cleared` on `run_id` and the next `floor` | Answerable |
-| What brings them back? | Days between sessions; entry point of the returning session | SDK `game_started`; the first menu or mode chosen | device id across sessions | Two sessions a day apart in development show one gap | gap between consecutive `game_started` per device | Partial: no notification or store entry source |
+| What brings them back? | Days between sessions; entry point of the returning session | SDK `game_started`; the first menu or mode chosen | device id across sessions | Two sessions a day apart in development show one gap | see the second query below | Partial: no notification or store entry source |
 
 ## Query guidance
 
@@ -65,6 +66,26 @@ from events
 where event_name = 'floor_entered'
 group by run
 order by deepest_floor desc
+```
+
+Days between consecutive `game_started` events per device, bounded to a 30-day
+window and a capped result:
+
+```sql
+select intDiv(gap, 86400) as gap_days, count() as returns
+from (
+  select arrayJoin(gaps) as gap
+  from (
+    select device_id,
+           arrayPopFront(arrayDifference(arraySort(groupArray(toUnixTimestamp(ts))))) as gaps
+    from events
+    where event_name = 'game_started' and ts >= now() - interval 30 day
+    group by device_id
+  )
+)
+group by gap_days
+order by gap_days
+limit 60
 ```
 
 Persona runs are tagged synthetic and excluded by default; a development

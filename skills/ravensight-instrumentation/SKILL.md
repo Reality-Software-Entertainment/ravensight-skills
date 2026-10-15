@@ -67,7 +67,10 @@ Do not remove that provider or start dual collection without the requested scope
 
 Read [the Ravensight integration reference](references/ravensight.md) before
 changing calls. Each reference names the docs catalog revision and date it was
-checked against; where the live docs differ, the live docs win. For iOS, Android
+checked against; where the live docs differ, the live docs win. When a check
+(`get_doc` revisions, or `scripts/check-docs.mjs` in the ravensight-skills
+repository) reports drift, re-fetch each changed doc with `get_doc` or the docs
+links, re-quote it, re-stamp every reference header, and re-run the check. For iOS, Android
 and the other native SDKs, read its native section: a playtest id is never copied
 into durable storage, the player opt-out and the game's stop-all switch are
 different controls, and a native persona run needs a free runner preflight before

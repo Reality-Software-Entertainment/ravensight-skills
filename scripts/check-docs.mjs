@@ -74,7 +74,12 @@ async function main() {
     process.exit(2);
   }
   if (!catalog || typeof catalog.revision !== 'string') { console.error(`${args.catalog} has no catalog revision`); process.exit(2); }
-  const { problems, notes } = checkReferences(dir, catalog);
+  let result;
+  try { result = checkReferences(dir, catalog); } catch (error) {
+    console.error(`Could not read the references at ${dir}: ${error.message}`);
+    process.exit(2);
+  }
+  const { problems, notes } = result;
   for (const note of notes) console.log(note);
   if (problems.length) {
     for (const problem of problems) console.error(problem);
