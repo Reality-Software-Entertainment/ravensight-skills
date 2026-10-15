@@ -147,7 +147,9 @@ Trusted publishing, adds GitHub Actions for
 and then sets the repository variable `NPM_TRUSTED_PUBLISHING` to `true`.
 
 Each reference records the public docs catalog revision and the date it was
-checked against. Before a release, check them against the live docs:
+checked against. As of 0.1.10 the native section separates iOS 0.3 and later
+(`deviceId` is always durable, `playtestDeviceId` holds `pt-<run>`) from the older
+SDKs, where `deviceId` reads `pt-<run>` during a playtest. Before a release, check them against the live docs:
 
 ```sh
 npm run check-docs

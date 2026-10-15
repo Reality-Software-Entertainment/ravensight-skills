@@ -2,7 +2,7 @@
 name: ravensight-instrumentation
 description: Audit, expand, or initialize Ravensight tracking in a game or application repository. Find missing journey coverage, fix incorrect existing instrumentation, and implement meaningful events using the installed SDK. Use for tracking audits and instrumentation work in both established and new products.
 metadata:
-  version: "0.1.9"
+  version: "0.1.10"
 ---
 
 # Ravensight instrumentation
@@ -72,7 +72,10 @@ checked against; where the live docs differ, the live docs win. When a check
 repository) reports drift, re-fetch each changed doc with `get_doc` or the docs
 links, re-quote it, re-stamp every reference header, and re-run the check. For iOS, Android
 and the other native SDKs, read its native section: a playtest id is never copied
-into durable storage, the player opt-out and the game's stop-all switch are
+into durable storage (on iOS 0.3 and later `deviceId` is always durable and
+`playtestDeviceId` holds `pt-<run>`; on older iOS and the other SDKs `deviceId`
+reads `pt-<run>` in a playtest, so never mirror it while `isSynthetic` is true),
+the player opt-out and the game's stop-all switch are
 different controls, and a native persona run needs a free runner preflight before
 any paid job. If the public docs MCP is connected, use `search_docs` and
 `get_doc` for current integration guidance, checking source links, revisions, and

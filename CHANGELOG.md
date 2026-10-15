@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.10
+
+From an iOS customer on SDK 0.3.1, whose game still followed reference text written
+for the pre-0.3 synthetic identity.
+
+- The native and mobile reference now states the identity, reset and stop rules per
+  SDK. iOS 0.3 and later: `deviceId` is always the durable id, `playtestDeviceId`
+  holds `pt-<run>`, `resetDeviceId()` during a playtest mints and saves a new
+  durable id and deletes the old identity's queue file, `stopAllTelemetry()` stops
+  a synthetic run while the saved opt-out does not. iOS 0.2 and the other SDKs:
+  `deviceId` reads `pt-<run>` during a playtest and reset is a no-op, so never
+  mirror `deviceId` into durable storage while `isSynthetic` is true.
+- New paragraph on the persisted queue: opt-in, never persists synthetic events.
+  The iOS coalescing test flake is fixed in 0.3.1.
+- No docs catalog change (revision unchanged), so no re-stamp.
+
 ## 0.1.9
 
 From a customer's post-mortem on an iOS game, where "all tracking" became a list

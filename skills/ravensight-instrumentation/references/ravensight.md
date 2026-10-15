@@ -64,25 +64,51 @@ another native SDK; these semantics decide where code goes.
 
 - **A playtest identity is never durable.** In a Ravensight Playtest run the SDK
   takes its token and run id from the launch environment (iOS), intent extras
-  (Android) or environment variables (desktop). On iOS the device id is then
-  `pt-<runId>`, held in memory only: the saved id is never read or written. Do
-  not copy the SDK's device id, or any id derived from it, into the game's save
-  file, preferences, keychain or cloud save, because in a persona run that would
-  mirror a synthetic id into storage a real player later inherits. Mint the game's
-  own `run_id` or `attempt_id` separately. Leave the playtest token and run id
-  unset in a build for real players.
+  (Android) or environment variables (desktop). The synthetic id is `pt-<runId>`,
+  held in memory only, and the rules differ by SDK generation:
+  - **iOS 0.3 and later:** `Ravensight.deviceId` is always the durable id (empty on
+    an install that has never run a normal session) and is safe to mirror.
+    `Ravensight.playtestDeviceId` holds `pt-<runId>`, and `Ravensight.isSynthetic`
+    says whether this run is a playtest. `deviceId` never returns a synthetic id.
+  - **iOS 0.2 and every other SDK (Android, desktop, the engine SDKs):** `deviceId`
+    reads `pt-<runId>` during a playtest, and `resetDeviceId()` is a no-op that
+    logs a line. Never mirror `deviceId` into durable storage while `isSynthetic`
+    is true, and treat any id derived from it the same way.
+  - **Every SDK:** do not copy the SDK's device id, or any id derived from it, into
+    the game's save file, preferences, keychain or cloud save on an SDK that can
+    return a synthetic id, because in a persona run that would mirror a synthetic
+    id into storage a real player later inherits. Mint the game's own `run_id` or
+    `attempt_id` separately. Leave the playtest token and run id unset in a build
+    for real players.
 - **Two privacy controls, not one.** The player opt-out (iOS
   `Ravensight.setTrackingEnabled(false)`, Android
   `Ravensight.setTrackingEnabled(context, false)`) is the player's choice: it is
   saved, survives a restart, drops the queue and makes no request of any kind, not
   even the startup check. The runtime stop-all switch (on iOS 0.2
   this is `RavensightConfiguration.enabled` or `Ravensight.shared?.setEnabled(_:)`;
-  0.3 adds `stopAllTelemetry()`) stops everything for this run and is never saved; use it for a debug build or a region
-  where the game sends nothing. Wire a settings toggle to the opt-out, not to the
-  runtime switch, and never let the runtime switch's `true` override a saved
-  opt-out. The reset (`resetDeviceId()`) is a third, separate call that starts a
-  fresh identity. In a playtest run the saved opt-out is ignored and the opt-out
-  and reset calls only log a line.
+  0.3 adds `stopAllTelemetry()` and `resumeTelemetry()`) stops everything for this
+  run and is never saved; use it for a debug build or a region where the game
+  sends nothing. Wire a settings toggle to the opt-out, not to the runtime switch,
+  and never let the runtime switch's `true` override a saved opt-out. The reset
+  (`resetDeviceId()`) is a third, separate call that starts a fresh identity. In a
+  playtest run it differs by SDK:
+  - **iOS 0.3 and later:** the saved opt-out is ignored (one console line) and the
+    run carries on, but `stopAllTelemetry()` does stop a synthetic run, so call it
+    when a playtest build must go quiet. `resetDeviceId()` during a playtest mints
+    and saves a new durable id for the next normal launch, deletes the old
+    identity's persisted queue file and returns the new id; the run keeps sending
+    as `pt-<runId>`.
+  - **Other SDKs and iOS 0.2:** the saved opt-out is ignored and the opt-out and
+    reset calls only log a line. Do not rely on either to quiet or re-identify a
+    playtest run.
+- **The persisted queue is opt-in, and never synthetic.** On iOS 0.3 and later
+  `persistQueue` defaults to false; when on, it keeps at most 500 events in a file
+  under Application Support so they survive a force quit, and writes are coalesced
+  over a quarter of a second, so the last events before a kill can be lost. A
+  synthetic run never reads or writes it, and `stopAllTelemetry()`, an opt-out and
+  `resetDeviceId()` delete the file. Do not assume other SDKs persist anything;
+  read their README. iOS 0.3.1 also fixes a flaky coalescing test in the SDK's own
+  suite; no library behaviour changed, so nothing in the game needs to change.
 - **Lifecycle is part of the matrix.** Backgrounding, a swipe away and a cold
   relaunch are the exits a mobile player actually takes; test each against the
   acceptance matrix's run join. Exit events are not guaranteed on a kill.

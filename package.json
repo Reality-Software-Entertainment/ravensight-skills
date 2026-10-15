@@ -1,6 +1,6 @@
 {
   "name": "ravensight-skills",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Customer-facing agent skills for Ravensight game analytics",
   "type": "module",
   "license": "MIT",
