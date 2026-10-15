@@ -1,6 +1,6 @@
 # Acceptance matrix
 
-> Docs catalog revision: `9a52b74ca50388e3d87f1dbd8ae20122cbdc22e783c9c4d24e1aa8264e9cc9b5`, checked 2026-10-14 against https://www.ravensight.io/docs/catalog.json.
+> Docs catalog revision: `21b5d2f1e4fd4ed504191b8e8ec1a8e435ea8e46e3d5c3a632e95d5b56d2f499`, checked 2026-10-15 against https://www.ravensight.io/docs/catalog.json.
 
 Write this matrix into the project before changing any tracking code. It turns
 "track everything" into questions a person can ask of the received data, and it is
