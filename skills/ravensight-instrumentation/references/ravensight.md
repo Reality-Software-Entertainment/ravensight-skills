@@ -109,6 +109,11 @@ another native SDK; these semantics decide where code goes.
   `resetDeviceId()` delete the file. Do not assume other SDKs persist anything;
   read their README. iOS 0.3.1 also fixes a flaky coalescing test in the SDK's own
   suite; no library behaviour changed, so nothing in the game needs to change.
+- **Required-reason APIs in the app need the app's own privacy manifest.** An app
+  that reads `systemUptime` (or another required-reason API) for its own timing must
+  declare that reason in its own privacy manifest. The SDK's manifest covers the
+  SDK's use only, never the app's. Transmit elapsed in-app intervals (durations the
+  game computed), never raw uptime values.
 - **Lifecycle is part of the matrix.** Backgrounding, a swipe away and a cold
   relaunch are the exits a mobile player actually takes; test each against the
   acceptance matrix's run join. Exit events are not guaranteed on a kill.
@@ -125,6 +130,13 @@ another native SDK; these semantics decide where code goes.
   current docs for timestamp units and the installed SDK's public signature.
 - Use the publishable ingest key for the chosen game/environment. Account/MCP
   tokens and provider credentials never belong in shipped game code.
+- **The SDK needs only the ingest key at initialization.** Do not ask a developer
+  who has supplied their keys to also confirm game or project ids before writing
+  code. Project and game ids are a release audit check: before shipping, confirm
+  the key belongs to the intended game and environment. The free way to do that is
+  `ravensight-doctor --live` (0.4.2 and later prints "key belongs to <name>
+  (<slug>, <environment>)") or `GET /api/v1/settings` called with the key. Neither
+  spends a metered call or sends an event.
 - Event names have a 200-character ceiling; event data has an 8 KB ceiling and
   batches have at most 50 events in the documented protocol. Verify current
   limits before sizing changes. Keep payloads well below ceilings.

@@ -147,20 +147,28 @@ Trusted publishing, adds GitHub Actions for
 and then sets the repository variable `NPM_TRUSTED_PUBLISHING` to `true`.
 
 Each reference records the public docs catalog revision and the date it was
-checked against. As of 0.1.10 the native section separates iOS 0.3 and later
-(`deviceId` is always durable, `playtestDeviceId` holds `pt-<run>`) from the older
-SDKs, where `deviceId` reads `pt-<run>` during a playtest. Before a release, check them against the live docs:
+checked against. As of 0.1.11 the SDK needs only the ingest key at initialization (game ids are a
+release audit, checked free with doctor `--live`), and the native section says an
+app's own `systemUptime` use needs the app's own privacy manifest declaration. Since
+0.1.10 it separates iOS 0.3 and later (`deviceId` is always durable,
+`playtestDeviceId` holds `pt-<run>`) from the older SDKs, where `deviceId` reads
+`pt-<run>` during a playtest. Before a release, check them against the live docs:
 
 ```sh
 npm run check-docs
 ```
 
-It fetches `https://www.ravensight.io/docs/catalog.json` and exits 1 when a
-reference's recorded revision is behind the catalog, a quoted document changed, or
-a quote no longer matches word for word (exit 2 if the catalog cannot be read).
+It fetches `https://www.ravensight.io/docs/catalog.json` and sorts drift into two
+classes. If the catalog moved but every quoted document's revision and text still
+match, it exits 0 with the notice "catalog moved to <rev>; no quoted document
+changed; re-stamp when convenient". If a quoted document's revision or text
+changed, or a quote no longer matches word for word, it exits 1 and lists the
+changed document ids (exit 2 if the catalog cannot be read). `--stamp` rewrites
+every reference header to the current catalog revision and today's date, and only
+when nothing quoted changed; it never touches the quoted-document revisions.
 `--catalog PATH` checks a saved copy. It needs network access, so it is a manual
-step and never part of `npm test`. When it fails, re-read the changed docs, update
-the references, then update every header to the new revision and date.
+step and never part of `npm test`. On exit 1, re-read the changed docs, update the
+references, then update every header to the new revision and date.
 
 Add future customer-facing workflows under `skills/<skill-name>/`. Keep the
 installer's supported choices and tests aligned with the published catalog.

@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.11
+
+From a native iOS customer.
+
+- `scripts/check-docs.mjs` no longer fails on a catalog change that touches no
+  quoted document. It exits 0 with "catalog moved to <rev>; no quoted document
+  changed; re-stamp when convenient" when every quoted document's revision and text
+  match, and exits 1 (listing the changed document ids) only when a quoted
+  document's revision or text changed. New `--stamp` rewrites the headers to the
+  current catalog revision when nothing quoted changed. Offline tests cover both
+  classes and the stamp.
+- The integration reference no longer implies owner-confirmed game ids before
+  coding: the SDK needs only the ingest key at initialization; project and game ids
+  are a release audit check, done free with doctor `--live` (0.4.2 prints "key
+  belongs to <name> (<slug>, <environment>)") or `GET /api/v1/settings` with the key.
+- Native section: an app that reads `systemUptime` or another required-reason API
+  for its own timing needs its own privacy manifest declaration; the SDK's manifest
+  covers the SDK only. Transmit elapsed in-app intervals, never raw uptime.
+- No docs catalog change in the references, so no re-stamp.
+
 ## 0.1.10
 
 From an iOS customer on SDK 0.3.1, whose game still followed reference text written

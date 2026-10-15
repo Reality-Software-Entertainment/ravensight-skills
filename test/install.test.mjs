@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync, existsSync } from 'node:fs';
+import { chmodSync, copyFileSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -401,10 +401,15 @@ test('check-docs is manual: npm test never runs it, and it judges a catalog offl
   const content = quote[3].split('\n').map(line => line.replace(/^> ?/, '')).join('\n \n');
   const catalog = { revision, documents: [{ id: quote[1], revision: quote[2], content }] };
   assert.deepEqual(checkReferences(referencesDir, catalog).problems, []);
-  assert.equal(checkReferences(referencesDir, { ...catalog, revision: 'f'.repeat(64) }).problems.length, referenceNames.length);
+  // A moved catalog with no quoted change is drift, not a problem.
+  const moved = checkReferences(referencesDir, { ...catalog, revision: 'f'.repeat(64) });
+  assert.deepEqual(moved.problems, []);
+  assert.equal(moved.drift.length, referenceNames.length);
+  assert.deepEqual(moved.changedIds, []);
   const changed = { revision, documents: [{ id: quote[1], revision: 'e'.repeat(64), content: content.replace('10 minutes', '15 minutes') }] };
   const problems = checkReferences(referencesDir, changed).problems;
   assert.ok(problems.some(p => p.includes('changed')), problems.join('\n'));
+  assert.deepEqual(checkReferences(referencesDir, changed).changedIds, [quote[1]]);
   assert.ok(problems.some(p => p.includes('no longer matches')), problems.join('\n'));
   // A reference with no header, and a quote whose document left the catalog.
   const refs = workspace(t);
@@ -424,4 +429,33 @@ test('check-docs is manual: npm test never runs it, and it judges a catalog offl
   assert.equal(run(script, ['--catalog', join(refs, 'absent.json')]).status, 2);
   assert.equal(run(script, ['--catalog', catalogFile, '--references', refs]).status, 1);
   assert.equal(run(script, ['--catalog', catalogFile]).status, 0);
+
+  // Drift class: catalog moved, nothing quoted changed. Exit 0 with a notice; --stamp rewrites headers.
+  const driftRefs = workspace(t);
+  for (const name of referenceNames) copyFileSync(join(referencesDir, name), join(driftRefs, name));
+  const movedFile = join(driftRefs, 'moved-catalog.json');
+  const newRevision = 'f'.repeat(64);
+  writeFileSync(movedFile, JSON.stringify({ ...catalog, revision: newRevision }));
+  const notice = run(script, ['--catalog', movedFile, '--references', driftRefs]);
+  assert.equal(notice.status, 0, notice.stderr);
+  assert.match(notice.stdout, /catalog moved to ffffffffffff; no quoted document changed; re-stamp when convenient/);
+  assert.ok(readFileSync(join(driftRefs, 'ravensight.md'), 'utf8').includes(revision), 'a plain check never rewrites');
+  const stamped = run(script, ['--catalog', movedFile, '--references', driftRefs, '--stamp']);
+  assert.equal(stamped.status, 0, stamped.stderr);
+  for (const name of referenceNames) {
+    const body = readFileSync(join(driftRefs, name), 'utf8');
+    assert.ok(body.includes(`> Docs catalog revision: \`${newRevision}\`, checked `), name);
+    assert.ok(!body.includes(`\`${revision}\`, checked`), name);
+  }
+  assert.match(run(script, ['--catalog', movedFile, '--references', driftRefs]).stdout, /All references match/);
+  // Quote revisions are left alone by the stamp.
+  assert.ok(readFileSync(join(driftRefs, 'ravensight.md'), 'utf8').includes(`at revision \`${quote[2]}\``));
+
+  // Changed class: a quoted document's revision or text moved. Exit 1 listing the id, and --stamp must not rewrite.
+  const changedFile = join(driftRefs, 'changed-catalog.json');
+  writeFileSync(changedFile, JSON.stringify({ revision: 'd'.repeat(64), documents: [{ id: quote[1], revision: 'e'.repeat(64), content: content.replace('10 minutes', '15 minutes') }] }));
+  const hard = run(script, ['--catalog', changedFile, '--references', driftRefs, '--stamp']);
+  assert.equal(hard.status, 1);
+  assert.match(hard.stderr, new RegExp(`Changed documents: ${quote[1]}`));
+  assert.ok(!readFileSync(join(driftRefs, 'ravensight.md'), 'utf8').includes('d'.repeat(64)), 'no stamp on a real change');
 });
