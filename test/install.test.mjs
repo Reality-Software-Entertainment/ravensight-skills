@@ -2,11 +2,16 @@ import { test } from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// Backups default to the home folder; keep every spawned installer out of the real one.
+const fakeHome = mkdtempSync(join(tmpdir(), 'ravensight-skill-home-'));
+process.env.HOME = fakeHome;
+process.env.USERPROFILE = fakeHome;
+process.on('exit', () => rmSync(fakeHome, { recursive: true, force: true }));
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = join(root, 'skills/ravensight-instrumentation');
 const cli = join(root, 'bin/install.mjs');
@@ -122,13 +127,22 @@ test('plain install of a differing copy hints at --force and changes nothing', t
   assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
 });
 
-test('--force backs up a differing copy then installs the current one', t => {
+function backupParent(project) {
+  const hash = createHash('sha256').update(realpathSync(project)).digest('hex').slice(0, 8);
+  return join(realpathSync(fakeHome), '.ravensight', 'skills-backup', `${basename(realpathSync(project))}-${hash}`);
+}
+function differing(t, extra = []) {
   const project = workspace(t);
   const args = ['--agent', 'generic', '--project', project];
   assert.equal(run(cli, args).status, 0);
   const installed = join(project, 'skills/ravensight-instrumentation');
   writeFileSync(join(installed, 'SKILL.md'), 'customer changes');
   writeFileSync(join(installed, 'extra.md'), 'mine');
+  return { project, args, installed };
+}
+
+test('--force backs up outside the repo, then installs the current copy', t => {
+  const { project, args, installed } = differing(t);
   const dry = run(cli, [...args, '--force', '--dry-run']);
   assert.equal(dry.status, 0, dry.stderr);
   assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
@@ -136,58 +150,114 @@ test('--force backs up a differing copy then installs the current one', t => {
   assert.equal(result.status, 0, result.stderr);
   assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), readFileSync(join(source, 'SKILL.md'), 'utf8'));
   assert.equal(existsSync(join(installed, 'extra.md')), false);
-  const backupRoot = join(project, '.ravensight-skills-backup');
-  const backups = readdirSync(backupRoot);
+  // Nothing is left in the repo root but the skills folder.
+  assert.deepEqual(readdirSync(project), ['skills']);
+  const parent = backupParent(project);
+  const backups = readdirSync(parent);
   assert.equal(backups.length, 1);
   assert.match(backups[0], /^ravensight-instrumentation\.bak-/);
-  assert.equal(readFileSync(join(backupRoot, backups[0], 'SKILL.md'), 'utf8'), 'customer changes');
-  assert.equal(readFileSync(join(backupRoot, backups[0], 'extra.md'), 'utf8'), 'mine');
-  // Nothing under the skills folder but the skill itself may carry a SKILL.md.
+  assert.ok(result.stdout.includes(join(parent, backups[0])), result.stdout);
+  assert.equal(readFileSync(join(parent, backups[0], 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(parent, backups[0], 'extra.md'), 'utf8'), 'mine');
+  if (process.platform !== 'win32') assert.equal(statSync(parent).mode & 0o077, 0, 'backup folder is private');
   assert.deepEqual(readdirSync(join(project, 'skills')), ['ravensight-instrumentation']);
   // Identical install with --force stays a no-op and makes no backup.
   assert.match(run(cli, [...args, '--force']).stdout, /Already installed/);
-  assert.equal(readdirSync(backupRoot).length, 1);
+  assert.equal(readdirSync(parent).length, 1);
+});
+
+test('--backup-dir puts the backup at an explicit location', t => {
+  const { project, args, installed } = differing(t);
+  const dir = join(workspace(t), 'mine');
+  const result = run(cli, [...args, '--force', '--backup-dir', dir]);
+  assert.equal(result.status, 0, result.stderr);
+  const [name] = readdirSync(dir);
+  assert.equal(readFileSync(join(dir, name, 'extra.md'), 'utf8'), 'mine');
+  assert.deepEqual(readdirSync(project), ['skills']);
+  assert.equal(existsSync(backupParent(project)), false);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), readFileSync(join(source, 'SKILL.md'), 'utf8'));
+});
+
+test('--no-backup replaces without a backup and says so', t => {
+  const { project, args, installed } = differing(t);
+  const result = run(cli, [...args, '--force', '--no-backup']);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /without a backup/);
+  assert.equal(existsSync(join(installed, 'extra.md')), false);
+  assert.equal(existsSync(backupParent(project)), false);
+  assert.deepEqual(readdirSync(project), ['skills']);
+});
+
+test('backup options need --force and exclude each other', t => {
+  const { args, installed } = differing(t);
+  assert.equal(run(cli, [...args, '--no-backup']).status, 1);
+  assert.equal(run(cli, [...args, '--backup-dir', workspace(t)]).status, 1);
+  const both = run(cli, [...args, '--force', '--no-backup', '--backup-dir', workspace(t)]);
+  assert.equal(both.status, 1);
+  assert.match(both.stderr, /either/);
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
+});
+
+test('--no-backup still restores the original when the install fails midway', t => {
+  const { args, installed } = differing(t);
+  const result = spawnSync(process.execPath, [cli, ...args, '--force', '--no-backup'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_WRITE: 'SKILL.md' } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /previous copy was restored/);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
 });
 
 test('--force restores the original copy when the install fails midway', t => {
-  const project = workspace(t);
-  const args = ['--agent', 'generic', '--project', project];
-  assert.equal(run(cli, args).status, 0);
-  const installed = join(project, 'skills/ravensight-instrumentation');
-  writeFileSync(join(installed, 'SKILL.md'), 'customer changes');
+  const { project, args, installed } = differing(t);
   const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_WRITE: 'SKILL.md' } });
   assert.equal(result.status, 1);
   assert.match(result.stderr, /previous copy was restored/);
   assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
   assert.deepEqual(readdirSync(join(project, 'skills')), ['ravensight-instrumentation']);
-  assert.deepEqual(readdirSync(join(project, '.ravensight-skills-backup')), []);
+  assert.deepEqual(readdirSync(backupParent(project)), []);
 });
 
 test('--force refuses a symlinked backup folder and moves nothing', t => {
-  const project = workspace(t);
+  const { project, args, installed } = differing(t);
   const outside = workspace(t);
-  const args = ['--agent', 'generic', '--project', project];
-  assert.equal(run(cli, args).status, 0);
-  const installed = join(project, 'skills/ravensight-instrumentation');
-  writeFileSync(join(installed, 'SKILL.md'), 'customer changes');
-  symlinkSync(outside, join(project, '.ravensight-skills-backup'));
+  // Default location: a symlink where ~/.ravensight/skills-backup should be.
+  mkdirSync(join(fakeHome, '.ravensight'), { recursive: true });
+  const link = join(fakeHome, '.ravensight', 'skills-backup');
+  rmSync(link, { recursive: true, force: true });
+  symlinkSync(outside, link);
+  t.after(() => rmSync(link, { recursive: true, force: true }));
   const result = run(cli, [...args, '--force']);
   assert.equal(result.status, 1);
   assert.match(result.stderr, /symbolic link/);
   assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
   assert.deepEqual(readdirSync(outside), []);
+  // Explicit location: the folder itself is a symlink.
+  const explicit = join(workspace(t), 'link');
+  symlinkSync(outside, explicit);
+  const second = run(cli, [...args, '--force', '--backup-dir', explicit]);
+  assert.equal(second.status, 1);
+  assert.match(second.stderr, /symbolic link/);
+  assert.deepEqual(readdirSync(outside), []);
+  assert.equal(readFileSync(join(installed, 'SKILL.md'), 'utf8'), 'customer changes');
+  assert.ok(project);
+});
+
+test('--backup-dir inside the skill folder is refused', t => {
+  const { args, installed } = differing(t);
+  const result = run(cli, [...args, '--force', '--backup-dir', join(installed, 'refs')]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /inside the skill folder|overlaps/);
+  assert.equal(readFileSync(join(installed, 'extra.md'), 'utf8'), 'mine');
 });
 
 test('a failed restore keeps the original error and names the backup', t => {
-  const project = workspace(t);
-  const args = ['--agent', 'generic', '--project', project];
-  assert.equal(run(cli, args).status, 0);
-  writeFileSync(join(project, 'skills/ravensight-instrumentation/SKILL.md'), 'customer changes');
+  const { project, args } = differing(t);
   const result = spawnSync(process.execPath, [cli, ...args, '--force'], { encoding: 'utf8', env: { ...process.env, RAVENSIGHT_SKILLS_TEST_FAIL_WRITE: 'SKILL.md', RAVENSIGHT_SKILLS_TEST_FAIL_RESTORE: '1' } });
   assert.equal(result.status, 1);
   assert.match(result.stderr, /Simulated write failure/);
   assert.match(result.stderr, /restore failed: Simulated restore failure; your previous copy is at .*ravensight-instrumentation\.bak-/);
-  const backupRoot = join(project, '.ravensight-skills-backup');
-  const [kept] = readdirSync(backupRoot);
-  assert.equal(readFileSync(join(backupRoot, kept, 'SKILL.md'), 'utf8'), 'customer changes');
+  const parent = backupParent(project);
+  const [kept] = readdirSync(parent);
+  assert.equal(readFileSync(join(parent, kept, 'SKILL.md'), 'utf8'), 'customer changes');
 });

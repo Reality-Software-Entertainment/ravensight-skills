@@ -54,8 +54,14 @@ the same agent. No edits to existing project instructions are required.
 The installer only writes skill files. It does not change game code, configure an
 account, or contact Ravensight. Identical installs are a no-op. Different existing
 content and symlink destinations are refused. To update, rerun the same command
-with `--force`: the old folder is moved to `.ravensight-skills-backup/ravensight-instrumentation.bak-<timestamp>` in your project root, outside the skills folder so no agent sees a duplicate skill,
-and the new copy is installed, so local edits stay in the backup. To uninstall, remove that folder.
+with `--force`: the old folder is copied to
+`~/.ravensight/skills-backup/<project>-<hash>/ravensight-instrumentation.bak-<timestamp>/`,
+outside your repository, so nothing new appears in git and no agent sees a duplicate skill. The copy is
+verified before the original is removed, and the new copy is installed, so local edits stay in the
+backup. The installer prints the backup path. If the install fails partway, your previous copy is restored.
+Use `--backup-dir PATH` to keep backups somewhere else, or `--no-backup` to replace without keeping one
+(the installer says so when it does). Neither option is accepted without `--force`, and a symbolic link
+or a folder inside the skill is refused as a backup location. To uninstall, remove that folder.
 
 ## Use it
 
