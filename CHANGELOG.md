@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.12
+
+Teaches the skill the typed event helpers that the SDKs now ship (Godot, LÖVE,
+Unity, Unreal, C++, Odin, iOS and Android 0.3.0, JavaScript 0.5.0).
+
+- The integration reference gains a "Typed event helpers" section: one purchase,
+  resource, progression and error example per engine, the reserved `rs_*` keys and
+  default event names, money as integer minor units with resource amounts as plain
+  numbers, the accept and flag rule (an invalid typed event is stored with
+  `rs_invalid` and shown on the Implementation health card), and the opt-in
+  `performance` flag that sends one `health` event per session.
+- The coverage reference maps the Purchases, Progression, Economy and Reliability
+  rows to the helpers and extends the volume rule to them: aggregate, never per
+  second, and never recreate the health event with frame rate events of your own.
+- The doctor (0.4.3) recognises the helper names as track calls.
+- No docs catalog change in the references, so no re-stamp.
+
 ## 0.1.11
 
 From a native iOS customer.

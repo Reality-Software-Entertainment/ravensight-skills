@@ -124,6 +124,83 @@ another native SDK; these semantics decide where code goes.
   session, before suggesting `ravensight-playtest run`, which charges. Do not
   start a paid job without the user's authorization.
 
+## Typed event helpers
+
+Typed helpers are a thin layer over each SDK's generic track call: they build the
+property set and queue the event through the same queue, batching, retries,
+opt-out and playtest path. Use them for real-money purchases, resource flows,
+progression steps and errors instead of hand-writing `rs_*` keys. They need an SDK
+version that ships them (0.3.0 or later for Godot, LÖVE, Unity, Unreal, C++, Odin,
+iOS and Android; 0.5.0 or later for JavaScript). Check the installed version and
+its README before using a name, and on an older SDK send the generic track call
+with the reserved keys below. Each helper takes an optional extra properties map
+(the reserved keys win over it) and an optional event name override; keep the
+default names unless the game already has a contract.
+
+One example per helper, per engine (read the installed README for exact parameter
+order and optional arguments):
+
+| Runtime | Purchase, resource, progression, error |
+| --- | --- |
+| Godot | `Ravensight.track_purchase("iap", "gem_pack_small", 499, "usd")`, `Ravensight.track_resource("sink", "gold", 10)`, `Ravensight.track_progression("complete", "world1", {"p2": "level3"})`, `Ravensight.track_error("error", "save failed")` |
+| Browser / Node | `rs.trackPurchase({ amount: 499, currency: 'usd', itemType: 'bundle', itemId: 'starter' })`, `rs.trackResource({ flow: 'source', resource: 'gold', amount: 50 })`, `rs.trackProgression({ status: 'complete', p1: 'world1', p2: 'level3' })`, `rs.trackError({ severity: 'error', message: err.message, stack: err.stack })` |
+| LÖVE | `ravensight.purchase(499, "usd", "bundle", "starter_pack")`, `ravensight.resource("sink", "gold", 40)`, `ravensight.progression("complete", "world1", { p2 = "level3" })`, `ravensight.error("critical", "save file would not load", { stack = debug.traceback() })` |
+| Unity | `Ravensight.TrackPurchase(499, "usd", "gem_pack", "gems_100")`, `Ravensight.TrackResource(RavensightTyped.Source, "gold", 250)`, `Ravensight.TrackProgression(RavensightTyped.Complete, "world1", "level2")`, `Ravensight.TrackError(RavensightTyped.Error, ex.Message, ex.StackTrace)` |
+| Unreal | `Ravensight->TrackPurchase(499, TEXT("usd"), TEXT("gem_pack"), TEXT("gems_500"), ...)`, `Ravensight->TrackResource(TEXT("source"), TEXT("gold"), 120.0, ...)`, `Ravensight->TrackProgression(TEXT("complete"), TEXT("world1"), TEXT("level2"), ...)`, `Ravensight->TrackError(TEXT("warning"), TEXT("pool over budget"), ...)` |
+| C++ | `client.track_purchase(499, "usd", "pack", "gems_500")`, `client.track_resource("sink", "gold", 120.0)`, `client.track_progression("complete", "world1", "level3")`, `client.track_error("error", "save file unreadable", "at load_save()")` |
+| Odin | `rs.track_purchase(client, 499, "usd", "bundle", "starter")`, `rs.track_resource(client, rs.FLOW_SINK, "gold", 10)`, `rs.track_progression(client, rs.STATUS_COMPLETE, "world1", "level3")`, `rs.track_error(client, rs.SEVERITY_ERROR, "save failed")` |
+| iOS | `Ravensight.trackPurchase(amount: 499, currency: "usd", itemType: "gems", itemId: "pack_small")`, `Ravensight.trackResource(flow: "sink", resource: "gold", amount: 250)`, `Ravensight.trackProgression(status: "complete", p1: "world1", p2: "level3")`, `Ravensight.trackError(severity: "error", message: "save failed")` |
+| Android | `Ravensight.trackPurchase(499, "usd", "bundle", "starter_pack")`, `Ravensight.trackResource("source", "gold", 25)`, `Ravensight.trackProgression("complete", "world1", "cave")`, `Ravensight.trackError("error", "save failed")` |
+
+Unreal also has `TrackPurchaseText` for an amount held as a string of digits. The
+doctor (0.4.3 and later) recognises every spelling above, and Godot's
+`Ravensight.track_event(` and Unreal's `->TrackEvent(`, as track calls and reads
+each helper's default event name, so these calls count in its inventory.
+
+Reserved keys the helpers set. Keys starting with `rs_` are reserved: never reuse
+one for the game's own data, and do not pass `rs_kind` in the extra properties.
+
+- Purchase: `rs_kind="purchase"`, `rs_amount`, `rs_currency` (three letters, upper
+  cased by the helper), `rs_item_type`, `rs_item_id`, optional `rs_cart` and
+  `rs_transaction_id`. Default event name `purchase`.
+- Resource: `rs_kind="resource"`, `rs_flow` (`source` or `sink`), `rs_resource`,
+  `rs_amount`, optional `rs_item_type` and `rs_item_id`. Default event name
+  `resource_source` or `resource_sink`.
+- Progression: `rs_kind="progression"`, `rs_status` (`start`, `complete`, `fail`),
+  `rs_p1`, optional `rs_p2`, `rs_p3` and `rs_score`. Default event name
+  `progression_start`, `progression_complete` or `progression_fail`.
+- Error: `rs_kind="error"`, `rs_severity` (`debug`, `info`, `warning`, `error`,
+  `critical`), `rs_message` (cut to 200 characters), optional `rs_stack` (cut to
+  2000). Default event name `error`.
+- Health: `rs_kind="health"`, `rs_fps_median`, `rs_fps_p10`, optional
+  `rs_memory_mb` and `rs_boot_ms`. Sent by the SDK itself, never by game code.
+
+Rules to hold to:
+
+- **Money is integer minor units.** An amount of 499 with currency `usd` is 4.99
+  USD. Send an integer or a string of digits, never a float and never a formatted
+  price, and do not convert currencies. A resource amount is the opposite: a plain
+  number, not money. Spending in-game gold is a `sink` resource, not a purchase;
+  only a real-money purchase uses the purchase helper.
+- **Accept and flag.** Ingest never refuses a typed event for breaking the
+  contract. It stores the event as sent with an `rs_invalid` reason, leaves it out
+  of the typed reads, and shows the flagged events on the dashboard's
+  Implementation health card. Helpers never throw on bad input, so a wrong amount,
+  currency or status becomes a flagged event, not a crash. After wiring a helper,
+  send one event and confirm it is not flagged on that card. Never set
+  `rs_invalid` yourself; the server drops any value a game sends.
+- **Performance sampling is opt-in.** The config flag `performance` (default off)
+  samples the frame rate about once a second into a bounded reservoir and sends
+  exactly one `health` event per session: on background entry (mobile), page hide
+  (web) or quit (desktop). It is never per second and never sent from the frame
+  hook, and nothing is sent when no sample was taken. Turn it on only when the
+  game wants frame rate, memory and boot time on the dashboard's health page, and
+  call the per frame hook where the SDK needs one (LÖVE `ravensight.update(dt)`,
+  C++ `client.sample_frame(dt)`, Odin `tick(client, dt)`). Do not add per frame or
+  per second events of your own to imitate it.
+- Which metrics exist and when the health event is sent differ by platform; read
+  the installed SDK's README before promising a metric.
+
 ## Payload and analytics contract
 
 - The HTTP event envelope uses event, data, and optionally timestamp. Inspect

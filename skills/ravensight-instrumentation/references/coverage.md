@@ -5,7 +5,9 @@
 Start from the [acceptance matrix](acceptance.md): every system below exists to
 answer one of its rows. Use this as a discovery checklist, not a requirement to invent systems the
 product does not contain. Choose event names from existing conventions and the
-installed backend contract. Examples below are candidate concepts, not SDK APIs.
+installed backend contract. Examples below are candidate concepts, not SDK APIs, except where a row names a
+typed helper: those are SDK helpers documented in ravensight.md under "Typed event helpers" and need an SDK
+version that ships them.
 
 | System | Look for the complete sequence | Useful bounded context |
 | --- | --- | --- |
@@ -14,15 +16,15 @@ installed backend contract. Examples below are candidate concepts, not SDK APIs.
 | Navigation and discovery | screen shown, option selected, destination reached, back/cancel, unavailable action | screen, source, destination, option_id |
 | Core loop | run/round/level entered, objective attempted, milestone, outcome, retry, return | level, mode, difficulty, attempt_id, elapsed_ms |
 | Combat and challenge | encounter, ability choice, damage summary, death, revive, boss phase, result | encounter_id, cause, equipment, resource bands |
-| Progression | checkpoint, unlock, upgrade offered/chosen/applied/failed, quest accepted/advanced/resolved | checkpoint_id, progression stage, choice, requirement |
-| Economy and inventory | source earned, sink attempted, accepted/rejected, item gained/equipped/used/lost | currency, amount, reason, item_id, balance when useful |
-| Purchases and rewards | offer viewed, intent, confirmed/failed/cancelled, entitlement granted, reward delivered | product_id, currency, amount with units, reason code |
+| Progression | checkpoint, unlock, upgrade offered/chosen/applied/failed, quest accepted/advanced/resolved | checkpoint_id, progression stage, choice, requirement; the progression helper (`start`, `complete`, `fail` with `p1` to `p3` and `score`) for world, level and quest nodes |
+| Economy and inventory | source earned, sink attempted, accepted/rejected, item gained/equipped/used/lost | currency, amount, reason, item_id, balance when useful; the resource helper (`source` or `sink`, resource name, plain number amount) for earned and spent in-game currency and materials |
+| Purchases and rewards | offer viewed, intent, confirmed/failed/cancelled, entitlement granted, reward delivered | product_id, currency, amount with units, reason code; the purchase helper for a confirmed real-money purchase (integer minor units, 3 letter currency, item type and id) |
 | Save and load | requested, completed/failed, resume accepted, migration/conflict/recovery | operation, slot category, schema version, duration, reason |
 | Multiplayer | queue, match found/failed/cancelled, connect, join, disconnect/reconnect, match result | mode, queue duration, role, reason; authoritative emitter |
 | Settings and accessibility | feature discovered, setting changed/applied/failed, input mode changed | setting_id, bounded value, source; no sensitive inference |
 | Content and creation | content selected/started/finished/abandoned, editor action committed, publish outcome | content_id/type, action category; no raw user content |
 | Feedback and support | report opened/submitted/cancelled/failed, help requested, recovery outcome | category, surface, reason; reuse report integration |
-| Reliability | load stall/recovery, network loss/recovery, recoverable error, resource failure | subsystem, stable error code, duration; aggregate repeats |
+| Reliability | load stall/recovery, network loss/recovery, recoverable error, resource failure | subsystem, stable error code, duration; aggregate repeats; the error helper (severity, bounded message, optional stack) for errors the game catches, and opt-in `performance` sampling for frame rate, memory and boot time |
 
 ## Event design decisions
 
@@ -66,3 +68,11 @@ measured. Estimate peak concurrent-player traffic against the configured limits.
 Record sampling or aggregation windows and how they affect interpretation. Do not
 sample half of a funnel arbitrarily. Never add idle heartbeats or per-frame events
 just to increase apparent coverage; event volume also affects heuristic flags.
+
+Typed helpers follow the same rule. A resource helper call per coin picked up is
+per-second style volume; send the aggregate instead (a source of the amount earned
+at the end of a fight or a level, a sink per shop purchase). A progression helper
+belongs at a node boundary and an error helper at a caught failure; count repeats of
+the same error in one event, never once per frame. `performance` sampling already
+sends one `health` event per session, so never recreate it with your own frame rate
+events.
