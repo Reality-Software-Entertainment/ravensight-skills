@@ -1,6 +1,6 @@
 # Validation and deliverables
 
-> Docs catalog revision: `21b5d2f1e4fd4ed504191b8e8ec1a8e435ea8e46e3d5c3a632e95d5b56d2f499`, checked 2026-10-15 against https://www.ravensight.io/docs/catalog.json.
+> Docs catalog revision: `1916bde83e30b71d7320fa851716460667880044fb05eba3eeae31d99e0b2e17`, checked 2026-10-17 against https://www.ravensight.io/docs/catalog.json.
 
 ## Verification matrix
 
