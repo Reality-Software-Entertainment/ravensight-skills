@@ -7,7 +7,8 @@ answer one of its rows. Use this as a discovery checklist, not a requirement to 
 product does not contain. Choose event names from existing conventions and the
 installed backend contract. Examples below are candidate concepts, not SDK APIs, except where a row names a
 typed helper: those are SDK helpers documented in ravensight.md under "Typed event helpers" and need an SDK
-version that ships them.
+build that ships them and matching deployed server support. Version numbers alone
+do not establish availability; see the release guard in that reference.
 
 | System | Look for the complete sequence | Useful bounded context |
 | --- | --- | --- |
@@ -73,6 +74,6 @@ Typed helpers follow the same rule. A resource helper call per coin picked up is
 per-second style volume; send the aggregate instead (a source of the amount earned
 at the end of a fight or a level, a sink per shop purchase). A progression helper
 belongs at a node boundary and an error helper at a caught failure; count repeats of
-the same error in one event, never once per frame. `performance` sampling already
+the same error in one event, never once per frame. Where the installed SDK and deployed server support it, `performance` sampling
 sends one `health` event per session, so never recreate it with your own frame rate
 events.

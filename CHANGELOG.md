@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-next.0 (unpublished preparation)
+
+- Add main, setup, connection and studio skills; keep instrumentation and Playtest independent.
+- Add selectable installation, Claude/OpenAI plugin manifests and public documentation MCP wiring.
+- Add release and marketplace steps; preserve the held 0.1.12 work with a deployed-capability check.
+
+
 ## 0.1.12
 
 Teaches the skill the typed event helpers that the SDKs now ship (Godot, LÖVE,

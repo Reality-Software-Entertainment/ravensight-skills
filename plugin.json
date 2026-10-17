@@ -1,0 +1,31 @@
+{
+  "name": "ravensight",
+  "version": "0.2.0-next.0",
+  "description": "Set up Ravensight, connect your agent, instrument your game and use studio evidence. Playtesting is separate.",
+  "author": {
+    "name": "Reality Software Entertainment",
+    "url": "https://ravensight.io"
+  },
+  "homepage": "https://ravensight.io/docs/",
+  "repository": "https://github.com/Reality-Software-Entertainment/ravensight-skills",
+  "license": "MIT",
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/ravensight/SKILL.md",
+      "interface": {
+        "displayName": "Ravensight",
+        "shortDescription": "Connect your agent to your game and studio",
+        "developerName": "Reality Software Entertainment",
+        "category": "Productivity",
+        "websiteURL": "https://ravensight.io",
+        "privacyPolicyURL": "https://ravensight.io/privacy/",
+        "termsOfServiceURL": "https://ravensight.io/terms/",
+        "defaultPrompt": [
+          "Help me set up Ravensight for this game.",
+          "Use my Ravensight studio evidence to plan the next improvement."
+        ]
+      }
+    }
+  }
+}

@@ -5,13 +5,16 @@ import { homedir } from 'node:os';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const source = resolve(dirname(fileURLToPath(import.meta.url)), '../skills/ravensight-instrumentation');
+const skillsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../skills');
+const available = ['ravensight', 'ravensight-setup', 'ravensight-connect', 'ravensight-studio', 'ravensight-instrumentation'];
 const name = 'ravensight-instrumentation';
 const destinations = { codex: '.agents/skills', claude: '.claude/skills', copilot: '.github/skills', generic: 'skills' };
-const help = `Ravensight instrumentation skill installer
-Usage: ravensight-skills --agent codex|claude|copilot|generic --project PATH [--dry-run] [--force [--no-backup | --backup-dir PATH]]
+const help = `Ravensight skill installer
+Usage: ravensight-skills --agent codex|claude|copilot|generic --project PATH [--skill NAME|all] [--dry-run] [--force [--no-backup | --backup-dir PATH]]
 
 Copies SKILL.md, references, and agent metadata into the chosen project.
+Without --skill, installs instrumentation for backwards compatibility.
+Use --skill all for the complete Ravensight pack; Playtest is never included.
 No network, credentials, global configuration, or game-code changes.
 Identical installs are a no-op. Different existing content is never overwritten unless you pass --force,
 which first copies it to ~/.ravensight/skills-backup/<project>-<hash>/${name}.bak-<timestamp>
@@ -67,7 +70,9 @@ function checkBackupParent(parent, trustedBase) {
     if (entry && (entry.isSymbolicLink() || !entry.isDirectory())) throw backupError(`Refusing non-directory or symbolic link: ${path}.`);
   }
 }
-function main(args) {
+function main(args, selected = name) {
+  const name = selected;
+  const source = join(skillsRoot, name);
   if (args.length === 0 || args.includes('--help')) { console.log(help); return; }
   let agent, project, backupDir, dryRun = false, force = false, noBackup = false;
   const seen = new Set();
@@ -94,7 +99,7 @@ function main(args) {
     const entry = stat(target);
     if (entry && (entry.isSymbolicLink() || !entry.isDirectory())) throw new Error(`Refusing non-directory or symbolic link: ${target}`);
   }
-  const files = ['SKILL.md', ...tree(join(source, 'references')).map(p => join('references', p)), ...tree(join(source, 'agents')).map(p => join('agents', p))].sort();
+  const files = tree(source).sort();
   const contents = new Map(files.map(file => [file, readFileSync(join(source, file))]));
   let backup, snapshot;
   if (stat(target)) {
@@ -183,6 +188,23 @@ function main(args) {
     }
     throw error;
   }
-  console.log(`${backup ? `Backed up previous copy to: ${backup}\n` : ''}${snapshot ? 'Replaced previous copy without a backup (--no-backup).\n' : ''}Installed: ${target}\nAsk your agent to use ravensight-instrumentation to audit or expand tracking. Reload its skills if needed.`);
+  console.log(`${backup ? `Backed up previous copy to: ${backup}\n` : ''}${snapshot ? 'Replaced previous copy without a backup (--no-backup).\n' : ''}Installed: ${target}\nAsk your agent to use ${name}. Reload its skills if needed.`);
 }
-try { main(process.argv.slice(2)); } catch (error) { console.error(`Installation failed: ${error.message}`); process.exitCode = 1; }
+function install(args) {
+  const indexes = args.flatMap((a, i) => a === '--skill' ? [i] : []);
+  if (indexes.length > 1) throw new Error('Repeated option: --skill');
+  let selected = name;
+  if (indexes.length) {
+    const i = indexes[0]; selected = args[i + 1];
+    if (!selected || (selected !== 'all' && !available.includes(selected))) throw new Error('Choose --skill ' + [...available, 'all'].join('|'));
+    args = [...args.slice(0, i), ...args.slice(i + 2)];
+  }
+  const chosen = selected === 'all' ? available : [selected];
+  // Preflight every destination before the first write. Each individual replacement
+  // retains its existing rollback. Completed skills stay installed if a later IO failure occurs.
+  if (chosen.length > 1 && !args.includes('--dry-run') && !args.includes('--help')) {
+    for (const skill of chosen) main([...args, '--dry-run'], skill);
+  }
+  for (const skill of chosen) main(args, skill);
+}
+try { install(process.argv.slice(2)); } catch (error) { console.error(`Installation failed: ${error.message}`); process.exitCode = 1; }

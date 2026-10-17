@@ -87,7 +87,7 @@ test('npm tarball runs offline and includes only distributable files', t => {
   const files = pack.files.map(file => file.path);
   assert.ok(files.includes('bin/install.mjs'));
   assert.ok(files.includes('skills/ravensight-instrumentation/SKILL.md'));
-  assert.ok(files.every(file => /^(LICENSE|README\.md|package\.json|bin\/install\.mjs|skills\/ravensight-instrumentation\/(SKILL\.md|references\/[^/]+\.md|agents\/openai\.yaml))$/.test(file)), files.join('\n'));
+  assert.ok(files.every(file => /^(LICENSE|docs\/RELEASE\.md|README\.md|package\.json|plugin\.json|mcp\.json|\.mcp\.json|\.claude-plugin\/plugin\.json|bin\/install\.mjs|skills\/ravensight(?:-setup|-connect|-studio|-instrumentation)?\/(SKILL\.md|references\/[^/]+\.md|agents\/openai\.yaml))$/.test(file)), files.join('\n'));
   const project = join(temp, 'game with spaces');
   mkdirSync(project);
   const result = spawnSync(process.execPath, [...npmArgs, 'exec', '--offline', '--yes', '--ignore-scripts', '--cache', cache, '--package', join(temp, pack.filename), '--', 'ravensight-skills', '--agent', 'codex', '--project', project], { cwd: temp, encoding: 'utf8' });

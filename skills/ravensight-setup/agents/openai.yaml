@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ravensight Setup"
+  short_description: "Set up the right SDK and verify a first event"
+  default_prompt: "Use $ravensight-setup to help me complete my Ravensight task."

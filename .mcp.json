@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ravensight-docs": {
+      "type": "http",
+      "url": "https://docs-mcp.ravensight.io/mcp"
+    }
+  }
+}

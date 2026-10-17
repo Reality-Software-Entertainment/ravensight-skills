@@ -5,7 +5,74 @@ Use your own coding agent to understand and improve analytics in your game.
 This repository contains customer workflows, not the Ravensight platform or its
 internal development instructions.
 
-## Available skills
+## Main Ravensight pack (release preparation)
+
+This checkout prepares `0.2.0-next.0`. It has not been published. The existing
+0.1.12 typed-event work is preserved; reconcile its product branches before release.
+See [the release and marketplace guide](docs/RELEASE.md).
+
+Install all five skills locally from this checkout:
+
+```sh
+node bin/install.mjs --agent codex --project /path/to/game --skill all
+```
+
+Use `--agent claude`, `copilot` or `generic` for another client. Use `--skill
+ravensight-connect` (or another full name) for one skill. Without `--skill`, the
+installer still installs instrumentation only, preserving the existing command.
+`--skill all --dry-run` previews every destination. Multi-skill installs preflight
+all destinations before writing; each replacement has its own rollback. If an
+IO error interrupts a later skill, completed skills remain installed; fix the
+reported issue and rerun to finish. Identical skills are skipped.
+
+| Skill | When the agent loads it |
+| --- | --- |
+| `ravensight` | Broad requests, choosing the next workflow and carrying context forward |
+| `ravensight-setup` | Account, project/environment, SDK and first-event setup |
+| `ravensight-connect` | Public docs MCP or authenticated studio MCP setup and troubleshooting |
+| `ravensight-studio` | Analytics, design, brainstorms, memory, marketing, Pulse, sales and publishers |
+| `ravensight-instrumentation` | Detailed event implementation and coverage audits |
+
+Skills route by need. They do not run an autonomous pipeline, require subagents,
+or load every reference up front. A focused skill can be used by itself; missing
+siblings fall back to public documentation. No Playtest skills, runners, browsers
+or Playtest authentication are installed by this pack.
+
+## Claude plugin
+
+For local validation and use, from the repository root:
+
+```sh
+claude plugin validate .claude-plugin/plugin.json --strict
+claude --plugin-dir .
+```
+
+After the release hold is cleared and this branch is published, customers can use:
+
+```text
+/plugin install ravensight --marketplace Reality-Software-Entertainment/ravensight-skills
+```
+
+On older clients, add that repository with `/plugin marketplace add` and install
+`ravensight@ravensight`. Invoke the main skill as `/ravensight:ravensight`, or use
+the exact qualified name shown by the client. Do not install standalone copies
+and the plugin in the same client unless you remove the duplicates.
+
+## OpenAI plugin
+
+The root `plugin.json` is the portable manifest, with OpenAI presentation and
+onboarding metadata. `mcp.json` includes the free, unauthenticated docs endpoint.
+The repository marketplace at `.agents/plugins/marketplace.json` supports local
+preparation; follow the current client workflow described in the release guide.
+The standalone installer above is also usable without a plugin host.
+
+The Claude `.mcp.json` uses that client's HTTP transport spelling. Both packages
+connect documentation only. The account MCP requires a separately configured
+personal token and metered-access authorization. This package neither grants
+account access nor implements OAuth. Official directory review and client end-to-end
+verification are separate from local manifest validation.
+
+## Existing instrumentation skill
 
 | Skill | Purpose |
 | --- | --- |
@@ -37,9 +104,10 @@ Choose one project target:
 | GitHub Copilot | --agent copilot | .github/skills/ravensight-instrumentation/ |
 | Manual loading / other agents | --agent generic | skills/ravensight-instrumentation/ |
 
-The command downloads and runs this repository's installer. For reproducible
-installation, append `#<commit-sha>` to the GitHub package specifier. No npm registry
-publication is required. The current installer installs the instrumentation skill.
+The command downloads and runs the published npm installer. For reproducible
+installation, use `npx ravensight-skills@<published-version>`. The main pack is
+prepared locally and must be published before customers use its new selectors.
+Without --skill the installer installs the instrumentation skill.
 
 To inspect the code first or work without a package runner:
 
@@ -66,7 +134,7 @@ backup. The installer prints the backup path. If the install fails partway, your
 Use `--backup-dir PATH` to keep backups somewhere else, or `--no-backup` to replace without keeping one
 (the installer says so when it does). Neither option is accepted without `--force`. A backup folder that is itself a symbolic link, or that is
 the skills folder or inside the skill, is refused. Backups made by 0.1.7 and earlier stay in
-`<project>/.ravensight-skills-backup/`; delete that folder when you no longer need it. To uninstall, remove that folder.
+`<project>/.ravensight-skills-backup/`; delete that folder when you no longer need it. To uninstall, remove the installed skill folder from your agent's skills directory.
 
 ## Use it
 

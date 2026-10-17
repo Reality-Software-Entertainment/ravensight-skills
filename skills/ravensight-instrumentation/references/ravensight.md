@@ -126,14 +126,22 @@ another native SDK; these semantics decide where code goes.
 
 ## Typed event helpers
 
+Before using this section, verify both the installed SDK and the deployed server's
+current documentation support typed events. SDK availability alone is insufficient.
+If accept-and-flag ingest or the typed analytics pages are absent from the deployed
+contract, do not claim they are available or migrate tracking to depend on them.
+Keep the existing supported event contract and report the release dependency.
+
+
 Typed helpers are a thin layer over each SDK's generic track call: they build the
 property set and queue the event through the same queue, batching, retries,
 opt-out and playtest path. Use them for real-money purchases, resource flows,
 progression steps and errors instead of hand-writing `rs_*` keys. They need an SDK
-version that ships them (0.3.0 or later for Godot, LÖVE, Unity, Unreal, C++, Odin,
-iOS and Android; 0.5.0 or later for JavaScript). Check the installed version and
-its README before using a name, and on an older SDK send the generic track call
-with the reserved keys below. Each helper takes an optional extra properties map
+build that actually ships them. Public-build and typed-event development branches
+used overlapping version numbers, so a version number alone proves nothing.
+Inspect the installed method and its README, then verify deployed ingest support.
+Do not emit the reserved keys below through a generic call as a workaround when
+that server support is absent. Each helper takes an optional extra properties map
 (the reserved keys win over it) and an optional event name override; keep the
 default names unless the game already has a contract.
 
@@ -200,6 +208,20 @@ Rules to hold to:
   per second events of your own to imitate it.
 - Which metrics exist and when the health event is sent differ by platform; read
   the installed SDK's README before promising a metric.
+
+## Public builds and session authentication
+
+Use a bounded `gt_pub_` key for a distributed build. Confirm the installed SDK's
+keyless, consent, retry and event-id behavior from its source and current docs.
+Include its automatic lifecycle names in the allowlist. Suggested policies are
+proposals: show the changes before saving, and never silently raise a ceiling.
+A game with authenticated accounts may instead mint per-player sessions on its
+server and pass only the session token to its client. This is an HTTP pattern;
+do not invent an SDK method to adopt a token.
+Steam ticket requirements need the studio's Steamworks connection and a real
+client ticket transport. Do not enable the requirement just because the UI shows
+it: the SDK does not automatically obtain a Steam ticket. Read the current
+public-build docs, including failures and retry behavior, before changing it.
 
 ## Payload and analytics contract
 

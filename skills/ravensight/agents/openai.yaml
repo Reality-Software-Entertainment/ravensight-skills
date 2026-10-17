@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ravensight"
+  short_description: "Choose and complete the right Ravensight workflow"
+  default_prompt: "Use $ravensight to help me complete my Ravensight task."

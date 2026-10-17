@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,readFileSync,readdirSync,mkdirSync,writeFileSync,rmSync,existsSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import {spawnSync} from 'node:child_process';
+const root=resolve(import.meta.dirname,'..');
+const names=['ravensight','ravensight-setup','ravensight-connect','ravensight-studio','ravensight-instrumentation'];
+const run=(project,...args)=>spawnSync(process.execPath,[join(root,'bin/install.mjs'),'--agent','generic','--project',project,...args],{encoding:'utf8'});
+function temp(t){const p=mkdtempSync(join(tmpdir(),'rs-pack-'));t.after(()=>rmSync(p,{recursive:true,force:true}));return p;}
+for(const name of names)test(`selects only ${name}`,t=>{const p=temp(t);const result=run(p,'--skill',name);assert.equal(result.status,0,result.stderr);assert.deepEqual(readdirSync(join(p,'skills')),[name]);assert.equal(readFileSync(join(p,'skills',name,'SKILL.md'),'utf8'),readFileSync(join(root,'skills',name,'SKILL.md'),'utf8'));});
+test('all skills install idempotently and exclude Playtest',t=>{const p=temp(t);assert.equal(run(p,'--skill','all','--dry-run').status,0);assert.deepEqual(readdirSync(p),[]);assert.equal(run(p,'--skill','all').status,0);assert.deepEqual(readdirSync(join(p,'skills')).sort(),names.toSorted());const again=run(p,'--skill','all');assert.equal(again.status,0);assert.match(again.stdout,/Already installed/);for(const name of names) assert.ok(again.stdout.includes(name));});
+test('all preflights later conflicts before writing earlier skills',t=>{const p=temp(t);const path=join(p,'skills/ravensight-studio');mkdirSync(path,{recursive:true});writeFileSync(join(path,'SKILL.md'),'customer edit');assert.equal(run(p,'--skill','all').status,1);assert.deepEqual(readdirSync(join(p,'skills')),['ravensight-studio']);assert.equal(readFileSync(join(path,'SKILL.md'),'utf8'),'customer edit');});
+test('invalid skill selectors never write',t=>{const p=temp(t);for(const args of [['--skill','../../escape'],['--skill','ravensight-playtest'],['--skill'],['--skill','ravensight','--skill','all']])assert.equal(run(p,...args).status,1);assert.deepEqual(readdirSync(p),[]);});
+test('both hosts package the same identity and only free docs MCP',()=>{const json=p=>JSON.parse(readFileSync(join(root,p),'utf8'));const portable=json('plugin.json'),claude=json('.claude-plugin/plugin.json');assert.equal(portable.name,claude.name);assert.equal(portable.version,json('package.json').version);assert.equal(claude.version,portable.version);assert.ok(existsSync(join(root,portable.extensions['com.openai'].onboardingSkill)));for(const file of ['mcp.json','.mcp.json']){const servers=json(file).mcpServers;assert.deepEqual(Object.keys(servers),['ravensight-docs']);assert.equal(servers['ravensight-docs'].url,'https://docs-mcp.ravensight.io/mcp');assert.equal(servers['ravensight-docs'].headers,undefined);}for(const name of names){const skill=readFileSync(join(root,'skills',name,'SKILL.md'),'utf8');assert.ok(skill.includes(`version: "${portable.version}"`));}});

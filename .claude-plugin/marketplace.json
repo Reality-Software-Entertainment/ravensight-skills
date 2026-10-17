@@ -1,0 +1,16 @@
+{
+  "name": "ravensight",
+  "owner": {
+    "name": "Reality Software Entertainment"
+  },
+  "plugins": [
+    {
+      "name": "ravensight",
+      "source": "./",
+      "description": "Set up Ravensight, connect your agent, instrument your game and use studio evidence. Playtesting is separate."
+    }
+  ],
+  "metadata": {
+    "description": "Ravensight setup, connections, instrumentation and studio workflows. Playtesting is separate."
+  }
+}
