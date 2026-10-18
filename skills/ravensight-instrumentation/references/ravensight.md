@@ -1,6 +1,6 @@
 # Ravensight integration reference
 
-> Docs catalog revision: `45dd237435ce4b3866b4b7822534c68c5d7debffa8d0456282fc9f1905993f9e`, checked 2026-10-18 against https://www.ravensight.io/docs/catalog.json.
+> Docs catalog revision: `e4033bce5947830cdccf6cdd579870e27f300008186d5c3be8541267185161f4`, checked 2026-10-18 against https://www.ravensight.io/docs/catalog.json.
 
 Verify against the installed SDK and current [integration docs](https://ravensight.io/docs/).
 This pack is a workflow, not an SDK implementation. Keep integrations compatible

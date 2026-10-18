@@ -41,7 +41,8 @@ Before release, rerun the added scenarios in `test/scenarios.md` through real
 Codex and Claude clients. Claude model execution remains blocked by the last
 observed account usage/spend limit until a successful new run proves otherwise.
 
-Still distinct and unexecuted here: authenticated development-account MCP/REST
+At that reference-only checkpoint, the following were unexecuted (see the newer
+real-client results below for guidance scenarios completed afterward): authenticated development-account MCP/REST
 onboarding; revoked/wrong-scope/budget-limited token cases; owner canManage versus
 content canWrite behavior; idempotent mutation reconciliation with mocked mail;
 warehouse estimate/billing disclosure; config/experiment readiness and incomplete
@@ -54,3 +55,37 @@ passed the skill-creator validator, and reference quotes matched local catalog
 `45dd237435ce` after incorporating the typed-event detection explanation.
 The catalog may change again before release; repeat the reference check against
 the final reviewed catalog, then the published catalog after deployment approval.
+
+## Held roadmap real-client onboarding
+
+October 17, 2026 (America/Los_Angeles). No publication or deployment.
+
+Three fresh Codex CLI 0.162.0-alpha.17.2 sessions completed using copied current
+project skills, a synthetic Unity package manifest, read-only sandbox, ignored
+user configuration/rules and no configured MCP servers. These are actual model
+behavior evaluations against local references, not static package tests or live
+service acceptance. Original prompts, runner, traces and finals are retained in
+`work/onboarding-tests/roadmap` and `work/onboarding-tests/run-roadmap.py`.
+
+| Scenario | Result | Observed behavior |
+| --- | --- | --- |
+| Main versus Playtest, installation and credentials | PASS, guidance | Kept Playtest optional; routed to setup/connect/studio; distinguished manifest declaration from installed SDK; required studio gt_mcp token rather than ingest/Playtest credentials; used existing RealitySE/Ravensight account; did not claim unknown deployed features work. |
+| Config and experiment interpretation | PASS, guidance | Consent-gated fetch/cache; typed offline defaults; scope and stale response protection; no retroactive exposure labels or automatic promotion; explained public config, fresh/304 billing and small/partial cohorts. |
+| Organization, warehouse and Parquet | PASS, guidance | Rejected project scope/canWrite as management authorization; reconciled timed-out invitation rather than new-ID retry; calculated 500,000 weighted-event reservation exceeding 100,000 budget; refused query splitting through MCP; identified REST profile and JSON-in-Parquet semantics. |
+| Claude refreshed plugin | BLOCKED | Claude Code 2.1.302 discovered all five plugin skills, but first model request again returned HTTP 429 usage_limit_reached with monthly spend/weekly-limit text. Zero model tokens ran. No repeated retry or billing changes. |
+
+Command traces contain only local inspection. Installed skills and fixture
+manifests remained byte-identical after all three Codex runs. Some exploratory
+reads returned nonzero because optional fixture paths were absent; models
+recovered and completed without edits or external calls. No account secrets,
+paid queries, invitations, cloud IAM, publishing or deployment were exercised.
+
+Still required: real Claude behavioral runs when its account allows them; selected
+development-account MCP/REST authentication and wrong-scope/revoked/budget tests;
+actual idempotent mutation and warehouse billing fixtures; installed SDK/runtime
+config and event delivery acceptance; cloud export delivery/consumer checks;
+native marketplace installation and any official-directory review. Passing the
+above reasoning scenarios does not prove these account/runtime flows.
+
+The local retention-inclusive catalog reference check passed and was stamped to
+`e4033bce5947`. Recheck against the final release catalog if it changes.
