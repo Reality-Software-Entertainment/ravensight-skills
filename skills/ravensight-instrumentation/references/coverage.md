@@ -1,6 +1,6 @@
 # Journey coverage
 
-> Docs catalog revision: `e4033bce5947830cdccf6cdd579870e27f300008186d5c3be8541267185161f4`, checked 2026-10-18 against https://www.ravensight.io/docs/catalog.json.
+> Docs catalog revision: `6f18ea4fbaa202482f8a05f88230b7b9562a373adafe54123d92e58df409505b`, checked 2026-10-18 against https://www.ravensight.io/docs/catalog.json.
 
 Start from the [acceptance matrix](acceptance.md): every system below exists to
 answer one of its rows. Use this as a discovery checklist, not a requirement to invent systems the
