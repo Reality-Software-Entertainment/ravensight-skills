@@ -2,6 +2,10 @@
 
 ## 0.2.0-next.0 (unpublished preparation)
 
+- Add focused studio reference for remote config, experiment interpretation, warehouse SQL, organization management and Parquet exports.
+- Distinguish ingest/config credentials, canManage versus canWrite, weighted costs and safe operation-ID retries.
+- Preserve separate general and Playtest packaging; extend pending behavioral onboarding scenarios without claiming they have run.
+
 - Add main, setup, connection and studio skills; keep instrumentation and Playtest independent.
 - Add selectable installation, Claude/OpenAI plugin manifests and public documentation MCP wiring.
 - Add release and marketplace steps; preserve the held 0.1.12 work with a deployed-capability check.

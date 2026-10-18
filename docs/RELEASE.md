@@ -5,13 +5,13 @@ forms, or deploy website updates until the owner clears the stalled-branch hold.
 
 ## 1. Reconcile the held work first
 
-The preparation branch starts from local `b4b3b9b` (skills 0.1.12). GitHub and npm
-were both 0.1.11 when checked on October 17, 2026. Preserve the typed-helper work;
-do not reset the local checkout to the registry version. The application has
-unmerged `worktree-gap-phase1` (typed analytics), `worktree-gap-phase2` (exports),
-`steam-ticket`, `keys-api` and `keys-dash` work. The local takeover candidate integrates `steam-ticket`, `keys-api` and `keys-dash`.
-Typed analytics and export phases remain parked, outside that candidate. Do not
-promise their pending capabilities in public skills or homepage copy.
+The preparation branch retained local `b4b3b9b` (skills 0.1.12). GitHub and npm
+were both 0.1.11 when checked earlier on October 17, 2026; recheck remote versions
+before choosing a final release. The takeover now consolidates typed analytics,
+exports, account/key work and the later roadmap in the local integration candidate.
+These capabilities remain held and must be validated against the deployed server
+before a customer is told they are available. Review the integration evidence and
+remaining client/account tests before clearing the hold.
 
 Review diffs against the then-current remote, merge/rebase deliberately, and verify
 both SDK methods and deployed server support. In particular, typed helpers in an
@@ -20,10 +20,9 @@ reference now gates these claims on supported deployed capabilities.
 
 The 0.1.12 local commit is retained as history. It does not need a separate npm
 publication before the combined main skill release: choose the next unused final
-version after approval. Keep 0.2.0-next.0 for the held build. Public-build and typed
-SDK branches reuse some version numbers; release the public-build candidates
-first, then reconcile and renumber typed SDKs in their separate release. Never
-publish two different artifacts under the same version.
+version after approval. Keep 0.2.0-next.0 for the held build. SDK branches reused some version numbers during preparation; reconcile each
+reviewed artifact with the registry and choose an unused version before release.
+Never publish two different artifacts under the same version.
 
 ## 2. Test the release candidate
 
@@ -107,16 +106,16 @@ from the portal. Test a fresh install and monitor authentication/setup failures.
 ## 6. Website release
 
 Use the matching website preparation branch. It fills current feature coverage,
-adds main-skill onboarding docs, and regenerates the docs catalog. A separate staged
-HTML fragment covers unmerged analytics/export features. Apply those cards only
-after their product branches and docs are released; do not publish claims early.
+adds main-skill onboarding docs, and regenerates the docs catalog. The consolidated
+analytics/export and later-roadmap feature coverage must ship with its matching
+reviewed API and SDK capabilities; do not publish website claims ahead of them.
 Run the marketing audit, catalog tests and a desktop/mobile render check before
 building with the existing analytics configuration and deploying. Verify live
 bytes and CDN refresh after the owner clears the hold.
 
 ## What you personally need to do
 
-1. Finish or resolve the stalled product/skills branches and clear the release hold.
+1. Review the consolidated takeover, remaining validation gates and release evidence, then clear the release hold.
 2. Confirm the release version and allow repository/npm/website publication.
 3. Sign in to Claude's and OpenAI's submission portals, confirm publisher identity,
    and provide any account verification or review credentials requested there.

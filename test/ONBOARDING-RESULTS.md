@@ -31,3 +31,26 @@ SHA-256 comparison found no changes to the original fixture/installed-skill file
 Authenticated account onboarding, wrong-scope/revoked-token/budget tests, sales timeout reconciliation and publisher-report behavior were not executed against a live account. They require an explicitly selected development account/token and suitable fixtures. Claude behavioral scenarios must be rerun when the client's existing account can make model requests. Native marketplace installation and hosted OpenAI authenticated integration are separate gates; OAuth was not implemented or validated here.
 
 After the observed skill change, all 41 package tests and the setup skill validator passed. Public evidence is in ravensight-onboarding-evidence.json. Full local traces and exact prompts are retained in work/onboarding-tests for reproducibility. Deployment remains held until the stalled branch is reconciled and the owner clears the hold.
+
+## Held roadmap reference update
+
+Config, experiments, organization automation, warehouse SQL and Parquet guidance
+was added from the held local platform implementation on October 17, 2026.
+The earlier five Codex behavioral passes do not cover these new workflows.
+Before release, rerun the added scenarios in `test/scenarios.md` through real
+Codex and Claude clients. Claude model execution remains blocked by the last
+observed account usage/spend limit until a successful new run proves otherwise.
+
+Still distinct and unexecuted here: authenticated development-account MCP/REST
+onboarding; revoked/wrong-scope/budget-limited token cases; owner canManage versus
+content canWrite behavior; idempotent mutation reconciliation with mocked mail;
+warehouse estimate/billing disclosure; config/experiment readiness and incomplete
+cohort interpretation; Parquet consumer interpretation; native marketplace install
+and official-directory review. Real mail, cloud IAM, paid queries and production
+writes remain held. Package/static checks are not behavioral onboarding passes.
+
+Local validation for this update: 41 package tests passed, all four changed skills
+passed the skill-creator validator, and reference quotes matched local catalog
+`45dd237435ce` after incorporating the typed-event detection explanation.
+The catalog may change again before release; repeat the reference check against
+the final reviewed catalog, then the published catalog after deployment approval.

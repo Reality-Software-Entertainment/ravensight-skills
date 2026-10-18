@@ -1,6 +1,6 @@
 # Ravensight integration reference
 
-> Docs catalog revision: `1916bde83e30b71d7320fa851716460667880044fb05eba3eeae31d99e0b2e17`, checked 2026-10-17 against https://www.ravensight.io/docs/catalog.json.
+> Docs catalog revision: `45dd237435ce4b3866b4b7822534c68c5d7debffa8d0456282fc9f1905993f9e`, checked 2026-10-18 against https://www.ravensight.io/docs/catalog.json.
 
 Verify against the installed SDK and current [integration docs](https://ravensight.io/docs/).
 This pack is a workflow, not an SDK implementation. Keep integrations compatible
@@ -258,10 +258,10 @@ public-build docs, including failures and retry behavior, before changing it.
   `get_doc` or the docs links, re-quote it here, re-stamp every reference header
   with the new catalog revision and date, and re-run `check-docs`.
 
-Quoted from `dashboard/how-the-built-in-detections-read-your-events` at revision `537ff17f016de8f32d97b978259bdbf34d38425aaaa2bd60be360aa3d9c8c27c`:
+Quoted from `dashboard/how-the-built-in-detections-read-your-events` at revision `8bc81e5e5ac7b72b42de8c10ee6cc02451608cdddd81f2b35543dd20e6347a44`:
 
 > - **Deaths** are events whose name contains `died`, `destroyed`, or `killed` (lowercase substring match, so `player_died` and `ship_destroyed` both count).
-> - **An explicit `rs_kind` comes first.** Set `rs_kind` in the event data to `level_start`, `level_complete`, `death`, or `none` and the level funnel, per-level deaths, journeys and the death count read it before the name. `none` opts an event out, so `checkout_started` with `rs_kind: "none"` is not a level start. An unknown value falls through to the name match. Keys that start with `rs_` are reserved for Ravensight. The rage quit rules below read it too.
+> - **An explicit `rs_kind` comes first.** Set `rs_kind` in the event data to `level_start`, `level_complete`, `death`, or `none` and the level funnel, per-level deaths, journeys and the death count read it before the name. `none` opts an event out, so `checkout_started` with `rs_kind: "none"` is not a level start. An unknown value falls through to the name match. The five [typed kinds](https://www.ravensight.io/docs/#typed-events) are known values too, so a `purchase` is never read as a level by its name, and a `progression` event is read by its `rs_status`. Keys that start with `rs_` are reserved for Ravensight. The rage quit rules below read it too.
 > - **Rage quit likely** flags a session with 3 or more deaths in its last 5 events, 3 or more deaths at the same level, or a final death followed by more than 10 minutes of silence inside the queried window. A death here is an event sent with `rs_kind: "death"`, whatever its name, so a `run_ended` event with `rs_kind: "death"` counts. Without a known `rs_kind`, the first two read `died`/`destroyed` names and the last reads a name containing `died`; `rs_kind: "none"` is never a death.
 > - **Potentially stuck** flags a session that repeats one event 10 or more times at the same level while the whole session has fewer than 20 events. The same event at a new level each time is movement, not stuck. Events with no place are grouped together, so ten repeats of a placeless event in a short session count; send a place or accept it.
 
@@ -313,3 +313,28 @@ doctor result is a static integration check of the source tree, never a
 certificate for the whole product: it says nothing about whether the acceptance
 matrix's questions are answerable. `--live` proves that one test event can be
 delivered and stored with the key, not that the game's own events are.
+
+## Remote config and experiment exposure (held candidate)
+
+The October 17, 2026 SDK candidates add remote config; confirm the installed
+version and deployed server before using it. Inspect the engine's actual
+`fetch_config`/`fetchConfig`/`FetchConfig` and typed getter APIs, rather than
+inventing one shared signature. Use publishable ingest credentials and safe
+fallbacks. Config is public game data, never a secret store. Fetch and cache are
+consent-gated and scoped by endpoint, key, player, platform and build. Verify
+that stale responses cannot restore another identity's values after reset or
+opt-out, and that the game behaves correctly offline or before readiness.
+
+A config fetch is not an event call or evidence of journey coverage. Fresh
+responses consume one ordinary event; conditional 304 responses are free.
+Active experiment labels `rs_exp_<key>` are attached by the SDK at enqueue time.
+Never supply these fields yourself or relabel old queue entries. Values and
+assignments must come from the same snapshot, including offline fallback.
+Test the gameplay effect and emitted assignment together in a development
+fixture, without generating production exposures. Read results through the
+studio workflow; implementation does not authorize a winner promotion.
+
+Doctor flags inspectable hand-written exposure labels but cannot verify runtime
+assignment or statistical validity. `constructor` and `prototype` are forbidden
+config property names, including nested JSON; they can be experiment key or
+variant string values. Preserve that distinction when validating a custom adapter.

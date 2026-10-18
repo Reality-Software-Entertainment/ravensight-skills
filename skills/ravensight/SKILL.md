@@ -16,7 +16,7 @@ Start from the user's intended outcome, not a tour of every feature. This pack d
 | New account, project/environment, engine SDK, ingest key, first event | `ravensight-setup` |
 | Connect docs or account MCP, fix authentication or permissions | `ravensight-connect` |
 | Implement or audit meaningful event coverage in source | `ravensight-instrumentation` |
-| Ask analytics questions, use studio memory, brainstorm/design, marketing, Pulse, sales or publisher reports | `ravensight-studio` |
+| Ask analytics questions, use studio memory, brainstorm/design, marketing, Pulse, sales, experiments, exports or studio administration | `ravensight-studio` |
 
 Use the host's skill discovery to load only the relevant skill. In Claude plugins, use the discovered plugin-qualified name; do not assume bare slash commands. If skill invocation is unavailable, read that sibling's `SKILL.md` from the installed pack. If the sibling is absent, explain which optional component is needed and use the linked public docs; do not recursively reload this router or install another package without a task-related reason.
 

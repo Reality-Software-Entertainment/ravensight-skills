@@ -1,6 +1,6 @@
 ---
 name: ravensight-studio
-description: Use connected Ravensight tools to answer player analytics questions and work with brainstorms, design documents, studio memory, marketing, Pulse, sales and publisher reporting. Use for studio data workflows, not SDK installation or running AI playtests.
+description: Use connected Ravensight tools to answer player analytics questions and work with brainstorms, design documents, studio memory, marketing, Pulse, sales, experiments, exports and studio administration. Use for studio data workflows, not SDK installation or running AI playtests.
 metadata:
   version: "0.2.0-next.0"
 ---
@@ -20,6 +20,9 @@ Read only the tools needed for the question. Tool names below are discovery hint
 | Marketing and audience feedback | `list_touchpoints`; discover Pulse tools for posts, interactions and summaries; docs #marketing-memory and #pulse |
 | Sales and connected stores | `summarize_sales`, `list_sales`, `get_launch_curve`, `list_connections`; docs #sales-ledger and #connections |
 | Publishers | `list_publishers`, `get_publisher_report`; docs #publishers |
+| Config and experiments | `list_remote_config`, `list_experiments`, `get_experiment_results`; read [data automation](references/data-automation.md) for exposure and interpretation limits |
+| Explore, segments and reports | `explore`, `get_engagement_matrix`, `list_segments`, `list_dashboards`, `list_report_schedules`; read [data automation](references/data-automation.md) |
+| Warehouse, bulk exports or organization administration | Read [data automation](references/data-automation.md) for the existing API, permission boundaries, metering and retries |
 | Traffic problems | `list_traffic_sources`, `list_ip_blocks`; changes require an explicit blocking/unblocking task; docs #traffic |
 
 ## Keep conclusions tied to evidence

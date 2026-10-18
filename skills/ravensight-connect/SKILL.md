@@ -24,6 +24,13 @@ For account access, the current Ravensight contract is a `gt_mcp_` personal toke
 
 Discover tools before calling them; use returned schemas instead of guessing arguments. Check the free `get_usage_rate` tool when available before paid account work, and read the current cost/access requirements. Account MCP requires a previously funded balance and uses weighted events. Do not infer that an included event allowance means unlimited free MCP, or silently enable auto-recharge. Existing authorization for scoped paid work persists; if scope or spending permission is missing, establish it before the metered call.
 
+The same studio-bound token authenticates the existing `/api/v1/data` REST API.
+Organization management uses a separate owner-enabled `canManage` flag; content
+`canWrite` does not enable it, and neither bypasses the current role or project
+scope. Keep management disabled for ordinary analysis. For warehouse pricing,
+mutation retries and invitations, use `ravensight-studio` and its data automation
+reference. Never provision a new auth service or substitute a Playtest login.
+
 ## Diagnose, then resume
 
 - Missing tools: check installation, enabled server and session reload; do not create duplicate servers.
