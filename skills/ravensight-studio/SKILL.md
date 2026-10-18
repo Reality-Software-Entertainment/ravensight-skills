@@ -24,10 +24,13 @@ Read only the tools needed for the question. Tool names below are discovery hint
 | Explore, segments and reports | `explore`, `get_engagement_matrix`, `list_segments`, `list_dashboards`, `list_report_schedules`; read [data automation](references/data-automation.md) |
 | Warehouse, bulk exports or organization administration | Read [data automation](references/data-automation.md) for the existing API, permission boundaries, metering and retries |
 | Traffic problems | `list_traffic_sources`, `list_ip_blocks`; changes require an explicit blocking/unblocking task; docs #traffic |
+| Existing playtest or simulation evidence | `list_playtest_jobs`, `get_playtest_report`, `list_playtest_findings`; docs #playtest-simulation. Reading a report does not require starting another paid job. |
 
 ## Keep conclusions tied to evidence
 
 Keep synthetic sessions separate from real-player analytics unless explicitly comparing them. Honor the game's detection profile: inferred rage quit, stuck or engagement labels are signals, not known player intent. Missing events or a zero count in a narrow window do not establish missing implementation. Include coverage limits and sample/time scope in conclusions.
+
+Simulation Runner reports describe seeded, game-defined strategies. Compare completed, failed and truncated runs separately; outcome and metric summaries cover completed games only. Do not equate synthetic outcomes with player enjoyment, retention or a proven balance defect. Cite the job, seed and configuration hash. A stored summary is evidence available for an authorized analysis, not an automatically confirmed studio fact. Detailed replay traces stay on the runner's machine. If the connected server predates simulation support, explain that limit rather than claiming a missing report is empty.
 
 Sales totals remain separate by currency and period granularity. Unknown is not zero. Prefer server summaries to summing daily and monthly rows together. Marketing lift is correlation under a stated baseline, not campaign attribution. Distinguish confirmed memory from proposed patterns and external claims. Use source IDs/links and observation dates so a decision can be revisited.
 
