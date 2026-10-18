@@ -7,7 +7,7 @@ internal development instructions.
 
 ## Main Ravensight pack (release preparation)
 
-This checkout prepares `0.2.0-next.0`. It has not been published. The existing
+This checkout prepares `0.2.0`. It has not been published. The existing
 0.1.12 typed-event work is preserved; reconcile its product branches before release.
 See [the release and marketplace guide](docs/RELEASE.md).
 

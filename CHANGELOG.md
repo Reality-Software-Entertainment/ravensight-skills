@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0-next.0 (unpublished preparation)
+## 0.2.0 (unpublished preparation)
 
 - Add focused studio reference for remote config, experiment interpretation, warehouse SQL, organization management and Parquet exports.
 - Distinguish ingest/config credentials, canManage versus canWrite, weighted costs and safe operation-ID retries.

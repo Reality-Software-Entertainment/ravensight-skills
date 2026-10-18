@@ -19,8 +19,10 @@ SDK do not prove that live ingest implements accept-and-flag semantics. The skil
 reference now gates these claims on supported deployed capabilities.
 
 The 0.1.12 local commit is retained as history. It does not need a separate npm
-publication before the combined main skill release: choose the next unused final
-version after approval. Keep 0.2.0-next.0 for the held build. SDK branches reused some version numbers during preparation; reconcile each
+publication before the combined main skill release. The local release candidate is
+0.2.0; npm reported that exact version unused during the October 17 release review.
+It remains unpublished and held. Recheck availability immediately before publication.
+SDK branches reused some version numbers during preparation; reconcile each
 reviewed artifact with the registry and choose an unused version before release.
 Never publish two different artifacts under the same version.
 
@@ -44,7 +46,7 @@ Never publish two different artifacts under the same version.
 
 ## 3. Publish the repository and npm package after approval
 
-Choose the final unused version (the current 0.2.0-next.0 is a preparation marker).
+Confirm that the held 0.2.0 candidate version remains unused before publication.
 Update package.json, all skill metadata, both plugin manifests and changelog
 together. Rebuild and rerun tests. Review the npm tarball file list and SHA-256.
 Push the reviewed branch/merge, then create the matching release tag only when
