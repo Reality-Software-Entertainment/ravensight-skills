@@ -1,7 +1,7 @@
 # Release and marketplace plan
 
 Current package status, verified October 19, 2026: npm 0.2.1 is published and
-GitHub main / the peeled v0.2.1 tag point to
+The published 0.2.1 release / peeled v0.2.1 tag source is
 `a243e12bf67f0d3963273b9ad7a376fb4a444890`. Version 0.2.2 is the local metadata
 correction candidate, not a published release. Recheck these observations before
 any publication. The owner authorized release,

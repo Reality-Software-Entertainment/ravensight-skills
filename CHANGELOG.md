@@ -5,7 +5,7 @@
 - Align OpenAI listing metadata with current description limits and required capabilities, long description and HTTPS support contact.
 - Preserve the anonymous docs MCP, separate account authorization and optional Playtesting; add package-level publisher field regressions.
 
-## 0.2.1 (release candidate)
+## 0.2.1 (published)
 
 - Remove obsolete held-candidate labels from config/data automation guidance while retaining installed-SDK and selected-server capability checks.
 - Verify current onboarding through an isolated real Codex session; Claude discovery works but behavioral evaluation remains blocked by the account usage limit.
