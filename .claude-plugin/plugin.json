@@ -1,6 +1,6 @@
 {
   "name": "ravensight",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Set up Ravensight, connect your agent, instrument your game and use studio evidence. Playtesting is separate.",
   "author": {
     "name": "Reality Software Entertainment",

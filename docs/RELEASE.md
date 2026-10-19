@@ -1,6 +1,10 @@
 # Release and marketplace plan
 
-Preparation evidence recorded October 19, 2026: the owner authorized release,
+Current package status, verified October 19, 2026: npm 0.2.1 is published and
+GitHub main / the peeled v0.2.1 tag point to
+`a243e12bf67f0d3963273b9ad7a376fb4a444890`. Version 0.2.2 is the local metadata
+correction candidate, not a published release. Recheck these observations before
+any publication. The owner authorized release,
 superseding the earlier blanket hold. Check the [npm registry](https://www.npmjs.com/package/ravensight-skills)
 and [repository releases](https://github.com/Reality-Software-Entertainment/ravensight-skills/releases)
 for the current published version; this document is not a publication receipt. Publisher access, exact client registration and external review
@@ -56,7 +60,7 @@ Never publish two different artifacts under the same version.
 
 ## 3. Publish the repository and npm package after approval
 
-Confirm that the held 0.2.0 candidate version remains unused before publication.
+For the current release, confirm the prepared 0.2.2 version remains unused before publication.
 Update package.json, all skill metadata, both plugin manifests and changelog
 together. Rebuild and rerun tests. Review the npm tarball file list and SHA-256.
 Push the reviewed branch/merge, then create the matching release tag only when
@@ -148,4 +152,25 @@ blocked by the account usage limit. Claude behavior remains untested.
 No live account token, event delivery, sales timeout or publisher workflow was
 tested. Those scenarios and clean marketplace installation remain release gates.
 See test/ONBOARDING-RESULTS.md in the source checkout for the full result.
-All publication remains on hold.
+At the October 17 checkpoint, publication was on hold. That historical blanket
+hold was superseded by the owner's release authorization; it is not the current
+package status. The current 0.2.2 candidate still requires final artifact review.
+
+
+## Publisher metadata preflight (October 19, 2026)
+
+The current [OpenAI submission field reference](https://developers.openai.com/plugins/deploy/submission)
+requires a short description of at most 30 characters, Codex capabilities
+(an empty array is allowed), and an HTTPS support URL for MCP review. Package
+checks cover these fields. The support destination is the existing
+[Ravensight documentation](https://ravensight.io/docs/), verified on this date
+to include Getting help and support@realityse.com, not an invented support page.
+
+These metadata corrections do not register a publisher, submit a plugin or
+activate authenticated studio OAuth. The package continues to include only the
+anonymous documentation MCP; Playtesting remains separate and optional.
+Verified publisher access, domain verification, portal scans and real client
+acceptance remain separate distribution requirements. Local package tests are
+not marketplace acceptance. Version 0.2.1 remains published. The metadata correction
+is prepared as 0.2.2; all versioned manifests and five skill metadata fields agree.
+Recheck npm and the v0.2.2 tag before publishing the exact reviewed artifact.

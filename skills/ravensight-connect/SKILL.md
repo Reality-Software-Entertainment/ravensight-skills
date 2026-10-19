@@ -2,7 +2,7 @@
 name: ravensight-connect
 description: Configure or troubleshoot Ravensight documentation and account MCP connections in an agent client. Distinguish free public docs from authenticated metered studio access and guide secure token setup.
 metadata:
-  version: "0.2.1"
+  version: "0.2.2"
 ---
 
 # Connect Ravensight MCP

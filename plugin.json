@@ -1,6 +1,6 @@
 {
   "name": "ravensight",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Set up Ravensight, connect your agent, instrument your game and use studio evidence. Playtesting is separate.",
   "author": {
     "name": "Reality Software Entertainment",
@@ -15,7 +15,7 @@
       "onboardingSkill": "./skills/ravensight/SKILL.md",
       "interface": {
         "displayName": "Ravensight",
-        "shortDescription": "Connect your agent to your game and studio",
+        "shortDescription": "Game and studio setup guidance",
         "developerName": "Reality Software Entertainment",
         "category": "Productivity",
         "websiteURL": "https://ravensight.io",
@@ -24,7 +24,12 @@
         "defaultPrompt": [
           "Help me set up Ravensight for this game.",
           "Use my Ravensight studio evidence to plan the next improvement."
-        ]
+        ],
+        "capabilities": [
+          "Ravensight setup guidance"
+        ],
+        "supportURL": "https://ravensight.io/docs/",
+        "longDescription": "Guides game developers through Ravensight setup, SDK instrumentation and evidence-based studio workflows. Includes five agent skills and the public documentation MCP. Account-specific analytics require a separate authorized studio connection; no account credentials are bundled. Playtesting is optional and installed separately. The skills explain consent, scoped credentials and usage limits without automatically granting access or starting paid work."
       }
     }
   }

@@ -2,7 +2,7 @@
 name: ravensight-setup
 description: Guide Ravensight account, project and environment setup, choose and configure the engine SDK, and verify an initial integration. Use for first-time setup or missing integration prerequisites; detailed coverage audits belong to ravensight-instrumentation.
 metadata:
-  version: "0.2.1"
+  version: "0.2.2"
 ---
 
 # Set up Ravensight
