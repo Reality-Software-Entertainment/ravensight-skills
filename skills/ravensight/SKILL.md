@@ -2,7 +2,7 @@
 name: ravensight
 description: Help someone get started with Ravensight or choose a Ravensight workflow across setup, account connections, game tracking and studio data. Use for broad Ravensight requests; route specific tasks to the focused installed skill.
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
 ---
 
 # Ravensight

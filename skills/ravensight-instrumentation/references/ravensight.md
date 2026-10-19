@@ -314,10 +314,10 @@ certificate for the whole product: it says nothing about whether the acceptance
 matrix's questions are answerable. `--live` proves that one test event can be
 delivered and stored with the key, not that the game's own events are.
 
-## Remote config and experiment exposure (held candidate)
+## Remote config and experiment exposure
 
-The October 17, 2026 SDK candidates add remote config; confirm the installed
-version and deployed server before using it. Inspect the engine's actual
+Remote config support depends on the installed SDK version and deployed server;
+confirm both before using it. Inspect the engine's actual
 `fetch_config`/`fetchConfig`/`FetchConfig` and typed getter APIs, rather than
 inventing one shared signature. Use publishable ingest credentials and safe
 fallbacks. Config is public game data, never a secret store. Fetch and cache are

@@ -1,7 +1,16 @@
 # Release and marketplace plan
 
-Status: local preparation only. Do not push, tag, publish npm, submit marketplace
-forms, or deploy website updates until the owner clears the stalled-branch hold.
+Current status, October 19, 2026: version 0.2.0 is published; 0.2.1 is a local
+patch candidate. The owner has authorized release, superseding the earlier
+blanket hold. Publisher access, exact client registration and external review
+remain separate prerequisites. Codex local onboarding passed on the updated
+references; Claude behavioral tests remain blocked by account usage limits.
+
+The preparation plan below is retained as dated history. Its 0.1.11 registry
+observations, 0.2.0-next.0 version advice and blanket holds are not current release
+instructions. Recheck exact package versions before publishing; never overwrite
+a published version. OAuth implementation now exists in the platform, but its
+client registrations and live activation remain unverified here.
 
 ## 1. Reconcile the held work first
 

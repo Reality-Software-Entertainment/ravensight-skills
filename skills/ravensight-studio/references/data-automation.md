@@ -1,6 +1,6 @@
 # Config, experiments and data automation
 
-This reference follows the held October 17, 2026 implementation candidate. Verify
+This reference describes the implemented contracts, not a live deployment status. Verify
 available tools, installed SDK methods and the selected server's deployed contract
 before using a capability. A local implementation or catalog entry does not prove
 that production is running it. Use the existing RealitySE account and Ravensight

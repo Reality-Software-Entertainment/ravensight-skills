@@ -5,10 +5,10 @@ Use your own coding agent to understand and improve analytics in your game.
 This repository contains customer workflows, not the Ravensight platform or its
 internal development instructions.
 
-## Main Ravensight pack (release preparation)
+## Main Ravensight pack
 
-This checkout prepares `0.2.0`. It has not been published. The existing
-0.1.12 typed-event work is preserved; reconcile its product branches before release.
+Version `0.2.0` is published. This checkout prepares the `0.2.1` patch; publication
+of that patch is recorded separately. Playtest remains an optional separate package.
 See [the release and marketplace guide](docs/RELEASE.md).
 
 Install all five skills locally from this checkout:

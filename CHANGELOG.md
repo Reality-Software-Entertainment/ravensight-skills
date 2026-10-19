@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.2.0 (unpublished preparation)
+## 0.2.1 (release candidate)
+
+- Remove obsolete held-candidate labels from config/data automation guidance while retaining installed-SDK and selected-server capability checks.
+- Verify current onboarding through an isolated real Codex session; Claude discovery works but behavioral evaluation remains blocked by the account usage limit.
+
+## 0.2.0
 
 - Add focused studio reference for remote config, experiment interpretation, warehouse SQL, organization management and Parquet exports.
 - Distinguish ingest/config credentials, canManage versus canWrite, weighted costs and safe operation-ID retries.
