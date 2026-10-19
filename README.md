@@ -7,8 +7,9 @@ internal development instructions.
 
 ## Main Ravensight pack
 
-Version `0.2.0` is published. This checkout prepares the `0.2.1` patch; publication
-of that patch is recorded separately. Playtest remains an optional separate package.
+Use the [npm registry](https://www.npmjs.com/package/ravensight-skills) and
+[repository releases](https://github.com/Reality-Software-Entertainment/ravensight-skills/releases)
+to verify published versions. Playtest remains an optional separate package.
 See [the release and marketplace guide](docs/RELEASE.md).
 
 Install all five skills locally from this checkout:

@@ -1,8 +1,9 @@
 # Release and marketplace plan
 
-Current status, October 19, 2026: version 0.2.0 is published; 0.2.1 is a local
-patch candidate. The owner has authorized release, superseding the earlier
-blanket hold. Publisher access, exact client registration and external review
+Preparation evidence recorded October 19, 2026: the owner authorized release,
+superseding the earlier blanket hold. Check the [npm registry](https://www.npmjs.com/package/ravensight-skills)
+and [repository releases](https://github.com/Reality-Software-Entertainment/ravensight-skills/releases)
+for the current published version; this document is not a publication receipt. Publisher access, exact client registration and external review
 remain separate prerequisites. Codex local onboarding passed on the updated
 references; Claude behavioral tests remain blocked by account usage limits.
 
