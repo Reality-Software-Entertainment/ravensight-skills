@@ -1,0 +1,25 @@
+{
+  "name": "ravensight",
+  "version": "0.2.2",
+  "description": "Set up Ravensight, connect your agent, instrument your game and use studio evidence. Playtesting is separate.",
+  "author": {
+    "name": "Reality Software Entertainment",
+    "url": "https://ravensight.io"
+  },
+  "homepage": "https://ravensight.io/docs/",
+  "repository": "https://github.com/Reality-Software-Entertainment/ravensight-skills",
+  "license": "MIT",
+  "displayName": "Ravensight",
+  "icon": "./assets/icon.png",
+  "keywords": [
+    "game-development",
+    "analytics",
+    "godot",
+    "unity",
+    "studio"
+  ],
+  "privacyPolicyUrl": "https://ravensight.io/privacy/",
+  "supportUrl": "https://ravensight.io/docs/",
+  "documentationUrl": "https://ravensight.io/docs/",
+  "termsOfServiceUrl": "https://ravensight.io/terms/"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ravensight Studio"
+  short_description: "Use analytics and studio evidence for the next decision"
+  default_prompt: "Use $ravensight-studio to help me complete my Ravensight task."

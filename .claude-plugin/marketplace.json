@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "ravensight",
-      "source": "./",
+      "source": "./plugins/ravensight",
       "description": "Set up Ravensight, connect your agent, instrument your game and use studio evidence. Playtesting is separate."
     }
   ],

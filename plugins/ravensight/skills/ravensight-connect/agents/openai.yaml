@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ravensight Connections"
+  short_description: "Connect documentation or scoped studio MCP access"
+  default_prompt: "Use $ravensight-connect to help me complete my Ravensight task."
