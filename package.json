@@ -10,6 +10,7 @@
   "files": [
     "bin",
     "skills",
+    "playtest",
     "README.md",
     "LICENSE",
     "plugin.json",

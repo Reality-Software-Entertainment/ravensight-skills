@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.5
+
+- Add the optional `ravensight-playtest-readiness` skill under `playtest/skills/`: what an agent does before a paid playtest (a complete brief, readable controls, a debug start, fonts, run length, the video flag, the free checks) and how it acts on the report's capability notes afterwards.
+- Install it with `--skill ravensight-playtest-readiness`. `--skill all`, the Claude plugin and the directory bundle are unchanged and still carry no Playtest skill.
+
 ## 0.2.4 (release candidate)
 
 - Setup and instrumentation hand Ravensight Doctor, the project's own tests and builds and the local playtest check to the developer: the agent gives the command, says what it checks and interprets the result the developer shares, and never runs them itself. A package test scans every built skill and reference for an instruction to run them.
