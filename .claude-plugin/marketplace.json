@@ -7,7 +7,7 @@
     {
       "name": "ravensight",
       "source": "./plugins/ravensight",
-      "description": "Set up Ravensight, connect your agent, instrument your game and use studio evidence. Playtesting is separate."
+      "description": "Set up Ravensight, connect your agent, instrument games and websites, and use studio evidence. Playtesting is separate."
     }
   ],
   "metadata": {

@@ -1,8 +1,8 @@
 ---
 name: ravensight
-description: Help someone get started with Ravensight or choose a Ravensight workflow across setup, account connections, game tracking and studio data. Use for broad Ravensight requests; route specific tasks to the focused installed skill.
+description: Help someone get started with Ravensight or choose a Ravensight workflow across setup, account connections, game or website tracking and studio data. Use for broad Ravensight requests; route specific tasks to the focused installed skill.
 metadata:
-  version: "0.2.2"
+  version: "0.2.3"
 ---
 
 # Ravensight
@@ -13,9 +13,9 @@ Start from the user's intended outcome, not a tour of every feature. This pack d
 
 | Need | Skill |
 | --- | --- |
-| New account, project/environment, engine SDK, ingest key, first event | `ravensight-setup` |
+| New account, project/environment, engine SDK or company/Game Website setup and first event | `ravensight-setup` |
 | Connect docs or account MCP, fix authentication or permissions | `ravensight-connect` |
-| Implement or audit meaningful event coverage in source | `ravensight-instrumentation` |
+| Implement or audit game or website events, heatmaps, and provider migration parity in source | `ravensight-instrumentation` |
 | Ask analytics questions, use studio memory, brainstorm/design, marketing, Pulse, sales, experiments, exports or studio administration | `ravensight-studio` |
 
 Use the host's skill discovery to load only the relevant skill. In Claude plugins, use the discovered plugin-qualified name; do not assume bare slash commands. If skill invocation is unavailable, read that sibling's `SKILL.md` from the installed pack. If the sibling is absent, explain which optional component is needed and use the linked public docs; do not recursively reload this router or install another package without a task-related reason.

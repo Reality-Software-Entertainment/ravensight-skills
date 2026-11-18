@@ -1,13 +1,15 @@
 ---
 name: ravensight-instrumentation
-description: Audit, expand, or initialize Ravensight tracking in a game or application repository. Find missing journey coverage, fix incorrect existing instrumentation, and implement meaningful events using the installed SDK. Use for tracking audits and instrumentation work in both established and new products.
+description: Audit, expand, or initialize Ravensight gameplay or public website tracking in a repository. Find missing journey coverage, fix incorrect existing instrumentation, and implement meaningful events using the installed SDK. Use for tracking audits, website/heatmap setup and provider migrations in established or new products.
 metadata:
-  version: "0.2.2"
+  version: "0.2.3"
 ---
 
 # Ravensight instrumentation
 
-Help the developer reconstruct the player's whole journey, including decisions,
+For website traffic, heatmaps or an analytics-provider migration, read [website tracking and MCP](references/websites.md) first. Use its visitor/action/outcome parity matrix rather than requiring game-only progression questions. Keep authenticated gameplay analytics and anonymous website analytics separate; a shared npm package does not imply shared keys or identity.
+
+For gameplay, help the developer reconstruct the player's whole journey, including decisions,
 outcomes, friction, failures, retries, and exits. Default to comprehensive coverage
 of meaningful state transitions across the requested product or subsystem.
 Installing an SDK or adding a few success events is not completion, and neither
@@ -31,7 +33,7 @@ report wider opportunities separately. Do not silently turn it into a full rewri
 
 ## First deliverable: the acceptance matrix
 
-Before changing any tracking code, read [the acceptance matrix](references/acceptance.md)
+For gameplay, before changing tracking code, read [the acceptance matrix](references/acceptance.md)
 and write the matrix into the project (`docs/analytics/acceptance.md` or the
 project's equivalent; inline for a chat-only audit). One row per player question:
 how long they play, where they stop or decide, which choice and what consequence,
@@ -44,6 +46,10 @@ Time, depth, progression, decision consequences, exits and retries each need an
 explicit answer. "Not tracked" is allowed only when the row says so and why. Draft
 the matrix from the request and a first read of the game, refine it during the
 baseline, and judge the finished work against it, not against an event count.
+
+For public websites, use the visitor/action/outcome parity matrix in the website
+reference instead; progression and gameplay run questions apply only if that
+subsystem is also in scope.
 
 ## 1. Establish the baseline
 

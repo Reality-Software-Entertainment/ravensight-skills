@@ -1,4 +1,4 @@
 interface:
   display_name: "Ravensight Instrumentation"
-  short_description: "Audit and expand tracking across player journeys"
-  default_prompt: "Use $ravensight-instrumentation to audit this project's existing tracking and implement missing journey coverage."
+  short_description: "Audit game and website events, privacy and coverage"
+  default_prompt: "Use $ravensight-instrumentation to audit this project's existing game or website tracking and implement missing journey coverage."

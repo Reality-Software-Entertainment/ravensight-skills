@@ -1,7 +1,7 @@
 # Ravensight Skills
 
 Public, portable agent skills for customers using [Ravensight](https://ravensight.io).
-Use your own coding agent to understand and improve analytics in your game.
+Use your own coding agent to understand and improve analytics in your game or website.
 This repository contains customer workflows, not the Ravensight platform or its
 internal development instructions.
 
@@ -29,10 +29,10 @@ reported issue and rerun to finish. Identical skills are skipped.
 | Skill | When the agent loads it |
 | --- | --- |
 | `ravensight` | Broad requests, choosing the next workflow and carrying context forward |
-| `ravensight-setup` | Account, project/environment, SDK and first-event setup |
+| `ravensight-setup` | Account, project/environment, company or Game Website, SDK and first-event setup |
 | `ravensight-connect` | Public docs MCP or authenticated studio MCP setup and troubleshooting |
-| `ravensight-studio` | Analytics, design, brainstorms, memory, marketing, Pulse, sales and publishers |
-| `ravensight-instrumentation` | Detailed event implementation and coverage audits |
+| `ravensight-studio` | Player/website reports and heatmaps, design, memory, marketing, Pulse, sales and publishers |
+| `ravensight-instrumentation` | Game/website event implementation, provider parity and coverage audits |
 
 Skills route by need. They do not run an autonomous pipeline, require subagents,
 or load every reference up front. A focused skill can be used by itself; missing
@@ -48,7 +48,7 @@ claude plugin validate .claude-plugin/plugin.json --strict
 claude --plugin-dir .
 ```
 
-After the release hold is cleared and this branch is published, customers can use:
+Customers can install the published repository package with:
 
 ```text
 /plugin install ravensight --marketplace Reality-Software-Entertainment/ravensight-skills
@@ -72,6 +72,27 @@ connect documentation only. The account MCP requires a separately configured
 personal token and metered-access authorization. This package neither grants
 account access nor implements OAuth. Official directory review and client end-to-end
 verification are separate from local manifest validation.
+
+## Website workflows
+
+The same five skills cover Company Website and each existing title's Game Website.
+Website collection has a separate anonymous `gt_site_` key, shared across the
+title's environments, while gameplay keeps its own ingest keys and identities.
+The website reference covers forward event/property/outcome parity, consent,
+private-route boundaries, safe custom events and optional click/scroll heatmaps.
+Heatmaps can display normalized click density without uploading a screenshot.
+
+Where the connected server advertises them, account MCP tools can read/create/
+update website settings, provide installation guidance, verify accepted traffic,
+and read reports or save goals/funnels. Use `heatmap_pages` to discover recorded
+page/viewport pairs before reading `heatmaps`. Setup writes require an authorized
+write token; docs remain free. Installing this package never enables account
+access, deploys a site, removes another analytics provider, or grants spending
+permission. Capability discovery and actual delivery checks remain necessary.
+
+Example: “Use Ravensight to add public website analytics and heatmaps to this
+existing game. Preserve gameplay tracking, check current events and properties
+before replacing our old provider, and test locally before deployment.”
 
 ## Existing instrumentation skill
 
@@ -106,8 +127,7 @@ Choose one project target:
 | Manual loading / other agents | --agent generic | skills/ravensight-instrumentation/ |
 
 The command downloads and runs the published npm installer. For reproducible
-installation, use `npx ravensight-skills@<published-version>`. The main pack is
-prepared locally and must be published before customers use its new selectors.
+installation, use `npx ravensight-skills@<published-version>`. Version 0.2.3 adds website workflows; verify that version is published before requesting its new guidance. Existing five-skill selectors remain compatible.
 Without --skill the installer installs the instrumentation skill.
 
 To inspect the code first or work without a package runner:

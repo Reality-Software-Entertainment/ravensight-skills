@@ -1,21 +1,23 @@
 # Release and marketplace plan
 
-Current package status, verified October 19, 2026: npm 0.2.1 is published and
-The published 0.2.1 release / peeled v0.2.1 tag source is
-`a243e12bf67f0d3963273b9ad7a376fb4a444890`. Version 0.2.2 is the local metadata
-correction candidate, not a published release. Recheck these observations before
-any publication. The owner authorized release,
-superseding the earlier blanket hold. Check the [npm registry](https://www.npmjs.com/package/ravensight-skills)
-and [repository releases](https://github.com/Reality-Software-Entertainment/ravensight-skills/releases)
-for the current published version; this document is not a publication receipt. Publisher access, exact client registration and external review
-remain separate prerequisites. Codex local onboarding passed on the updated
-references; Claude behavioral tests remain blocked by account usage limits.
+Current package status, checked November 18, 2026: npm 0.2.2 is published.
+Version 0.2.3 is the local website-workflow candidate, not yet a publication
+receipt. Recheck the [npm registry](https://www.npmjs.com/package/ravensight-skills)
+and exact candidate version immediately before publishing; never replace a
+published version with different bytes. Owner-authorized release work supersedes
+older blanket holds. External publisher registration/review and actual client
+acceptance remain separate requirements, not consequences of package tests.
 
-The preparation plan below is retained as dated history. Its 0.1.11 registry
-observations, 0.2.0-next.0 version advice and blanket holds are not current release
-instructions. Recheck exact package versions before publishing; never overwrite
-a published version. OAuth implementation now exists in the platform, but its
-client registrations and live activation remain unverified here.
+This candidate keeps the five skills and public-docs-only plugin connection.
+It documents website tools conditionally on selected-server discovery. It does
+not establish a backend rollout, working account OAuth registration or actual
+customer event delivery. The website setup/report contract and optional
+image-free density view need their own release evidence. Local offline installer
+checks verify installed files for Codex/Claude; they are not new model-behavior
+or marketplace acceptance tests.
+
+The October preparation sections below are dated history. Their old version
+observations and holds are not current release instructions.
 
 ## 1. Reconcile the held work first
 
@@ -60,7 +62,7 @@ Never publish two different artifacts under the same version.
 
 ## 3. Publish the repository and npm package after approval
 
-For the current release, confirm the prepared 0.2.2 version remains unused before publication.
+For the current release, confirm the prepared 0.2.3 version remains unused before publication.
 Update package.json, all skill metadata, both plugin manifests and changelog
 together. Rebuild and rerun tests. Review the npm tarball file list and SHA-256.
 Push the reviewed branch/merge, then create the matching release tag only when
@@ -127,12 +129,12 @@ analytics/export and later-roadmap feature coverage must ship with its matching
 reviewed API and SDK capabilities; do not publish website claims ahead of them.
 Run the marketing audit, catalog tests and a desktop/mobile render check before
 building with the existing analytics configuration and deploying. Verify live
-bytes and CDN refresh after the owner clears the hold.
+bytes and CDN refresh after an authorized deployment.
 
-## What you personally need to do
+## Release coordination and publisher requirements
 
-1. Review the consolidated takeover, remaining validation gates and release evidence, then clear the release hold.
-2. Confirm the release version and allow repository/npm/website publication.
+1. Review the current candidate, applicable validation gates and release evidence. Earlier blanket holds are historical.
+2. Confirm the unused release version and complete repository/npm/website publication within the existing user authorization.
 3. Sign in to Claude's and OpenAI's submission portals, confirm publisher identity,
    and provide any account verification or review credentials requested there.
 4. Approve the final listing, respond to reviewer feedback, and publish after approval.
@@ -154,7 +156,7 @@ tested. Those scenarios and clean marketplace installation remain release gates.
 See test/ONBOARDING-RESULTS.md in the source checkout for the full result.
 At the October 17 checkpoint, publication was on hold. That historical blanket
 hold was superseded by the owner's release authorization; it is not the current
-package status. The current 0.2.2 candidate still requires final artifact review.
+package status. The 0.2.2 candidate described at that checkpoint was subsequently published.
 
 
 ## Publisher metadata preflight (October 19, 2026)
@@ -171,6 +173,6 @@ activate authenticated studio OAuth. The package continues to include only the
 anonymous documentation MCP; Playtesting remains separate and optional.
 Verified publisher access, domain verification, portal scans and real client
 acceptance remain separate distribution requirements. Local package tests are
-not marketplace acceptance. Version 0.2.1 remains published. The metadata correction
-is prepared as 0.2.2; all versioned manifests and five skill metadata fields agree.
-Recheck npm and the v0.2.2 tag before publishing the exact reviewed artifact.
+not marketplace acceptance. At this October checkpoint, version 0.2.1 was published and the metadata correction
+was prepared as 0.2.2. That correction has since been published. Check the current
+status at the top before any new release.

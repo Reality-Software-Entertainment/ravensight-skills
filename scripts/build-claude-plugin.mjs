@@ -19,7 +19,7 @@ const manifest = JSON.parse(readFileSync(join(root, '.claude-plugin/plugin.json'
 Object.assign(manifest, {
   displayName: 'Ravensight',
   icon: './assets/icon.png',
-  keywords: ['game-development', 'analytics', 'godot', 'unity', 'studio'],
+  keywords: ['game-development', 'analytics', 'godot', 'unity', 'studio', 'website', 'heatmaps'],
   privacyPolicyUrl: 'https://ravensight.io/privacy/',
   supportUrl: 'https://ravensight.io/docs/',
   documentationUrl: 'https://ravensight.io/docs/',
