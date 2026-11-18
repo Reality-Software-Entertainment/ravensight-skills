@@ -2,7 +2,7 @@
 name: ravensight-connect
 description: Configure or troubleshoot Ravensight documentation and account MCP connections in an agent client. Distinguish free public docs from authenticated metered studio access and guide secure token setup.
 metadata:
-  version: "0.2.2"
+  version: "0.2.3"
 ---
 
 # Connect Ravensight MCP
@@ -20,7 +20,7 @@ Read https://ravensight.io/docs/#docs-mcp or #mcp as appropriate. The bundled pl
 
 Inspect existing client configuration and supported MCP commands without dumping credential-bearing files. Preserve unrelated servers. Check the current client docs or CLI help for its transport and credential mechanism; transport labels differ between clients. Prefer the client's secure secret entry or environment-variable reference. Avoid literal tokens in command history, project files, screenshots and chat. If secure entry requires the user, provide the exact field/location and resume after it is set. Explain the destination before any configuration change.
 
-For account access, the current Ravensight contract is a `gt_mcp_` personal token from Settings > MCP access, used as an Authorization Bearer credential. Choose the correct studio before minting it. Use the narrowest permitted projects and read permissions; a monthly token budget bounds agent loops. A game ingest key and a `gt_cli_` Playtest token cannot authenticate this MCP server. There is no general OAuth sign-in flow implemented by this skill. Never describe Playtest login as a substitute.
+For account access, the current Ravensight contract is a `gt_mcp_` personal token from Settings > MCP access, used as an Authorization Bearer credential. Choose the correct studio before minting it. Use the narrowest permitted projects and read permissions; a monthly token budget bounds agent loops. A game ingest key, a `gt_site_` website key and a `gt_cli_` Playtest token cannot authenticate this MCP server. There is no general OAuth sign-in flow implemented by this skill. Never describe Playtest login as a substitute.
 
 Discover tools before calling them; use returned schemas instead of guessing arguments. Check the free `get_usage_rate` tool when available before paid account work, and read the current cost/access requirements. Account MCP requires a previously funded balance and uses weighted events. Do not infer that an included event allowance means unlimited free MCP, or silently enable auto-recharge. Existing authorization for scoped paid work persists; if scope or spending permission is missing, establish it before the metered call.
 
@@ -30,6 +30,8 @@ Organization management uses a separate owner-enabled `canManage` flag; content
 scope. Keep management disabled for ordinary analysis. For warehouse pricing,
 mutation retries and invitations, use `ravensight-studio` and its data automation
 reference. Never provision a new auth service or substitute a Playtest login.
+
+Website tools use the same account connection, not a new server. `site:read` governs aggregate reads; setup, installation-key retrieval and goal/funnel changes need `site:write` plus an owner-enabled `canWrite` token. Project-restricted tokens must explicitly name an allowed title and cannot fall back to Company Website. A current membership check still applies on every call. Discover capabilities; installing these skills does not activate server features or register an OAuth client.
 
 ## Diagnose, then resume
 

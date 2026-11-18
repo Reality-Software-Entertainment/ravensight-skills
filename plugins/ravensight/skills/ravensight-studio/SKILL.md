@@ -1,8 +1,8 @@
 ---
 name: ravensight-studio
-description: Use connected Ravensight tools to answer player analytics questions and work with brainstorms, design documents, studio memory, marketing, Pulse, sales, experiments, exports and studio administration. Use for studio data workflows, not SDK installation or running AI playtests.
+description: Use connected Ravensight tools to answer player or website analytics questions and work with brainstorms, design documents, studio memory, marketing, Pulse, sales, experiments, exports and studio administration. Use for studio data workflows, not SDK installation or running AI playtests.
 metadata:
-  version: "0.2.2"
+  version: "0.2.3"
 ---
 
 # Work with your Ravensight studio
@@ -13,6 +13,7 @@ Read only the tools needed for the question. Tool names below are discovery hint
 
 | Work | Starting tools or docs |
 | --- | --- |
+| Company or Game Website reports and heatmaps | `get_site`, `verify_site`, `get_site_report`; docs #websites. Use the website procedure below. |
 | Player behavior and data quality | `list_games`, `get_integration_status`, `get_metrics`, `get_funnel`, `get_property_breakdown`; docs #dashboard |
 | Design and next-game context | `get_starting_context`, `get_game_brief`, `search_studio_context`, `list_design_docs`, `get_design_doc`; docs #design-studio |
 | Brainstorming | `list_brainstorm_sessions`, `get_brainstorm_board`; create sessions/cards only when requested; docs #brainstorm |
@@ -25,6 +26,16 @@ Read only the tools needed for the question. Tool names below are discovery hint
 | Warehouse, bulk exports or organization administration | Read [data automation](references/data-automation.md) for the existing API, permission boundaries, metering and retries |
 | Traffic problems | `list_traffic_sources`, `list_ip_blocks`; changes require an explicit blocking/unblocking task; docs #traffic |
 | Existing playtest or simulation evidence | `list_playtest_jobs`, `get_playtest_report`, `list_playtest_findings`; docs #playtest-simulation. Reading a report does not require starting another paid job. |
+
+## Website reports
+
+Keep company scope separate from a title's Game Website. The optional `project_id` is the existing title slug, not an environment game id. Omit it for company scope only if the token permits the whole studio; project-restricted tokens must name an allowed title. Website tools need `site:read`; they do not return visitor/contact records or join account/player identity. Discover the selected server's tools and returned report list before requesting a report.
+
+Use `get_site_report` for the narrow question and date range. Its `from`/`to` use Unix seconds, converted to inclusive calendar dates. Preserve `meta.coverage`, history, timezone and pagination; unknown evidence is not zero. For heatmaps, request `report: 'heatmap_pages'` first, page through returned `data.items` as needed, then use a returned `page` and `viewport` in `report: 'heatmaps'` with UTC. The dashboard can draw normalized density directly from aggregate coordinates/counts; a reference image is optional context, never a visitor screenshot. Scroll bins count received summaries, not unique visitors or session replay.
+
+Saved website goals/funnels are distinct from gameplay funnels. Read existing definitions from `get_site`; retain returned ids for authorized edits with `save_site_goal` or `save_site_funnel`. Those writes require `site:write` and an owner-enabled write token. Do not create a definition merely to answer a read request. Report reads and configuration use the programmatic meter; they are not one-hit website collector events. Keep calls within the user's token cap and authorized budget.
+
+For installing a website or changing event coverage, use the setup/instrumentation skill when installed. The [website docs](https://ravensight.io/docs/#websites) and actual tool schemas remain the fallback, without requiring another skill installation.
 
 ## Keep conclusions tied to evidence
 

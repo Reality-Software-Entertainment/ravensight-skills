@@ -1,6 +1,6 @@
 # Ravensight integration reference
 
-> Docs catalog revision: `3f8194933b66bde4bb228bee65f0db321482a40c8ffa6fec5f568e685be84b6b`, checked 2026-10-18 against https://www.ravensight.io/docs/catalog.json.
+> Docs catalog revision: `dc770dc4b90c0270dfc3efee566a48356304eddcf73ed057e8430d6019d149df`, checked 2026-11-18 against https://www.ravensight.io/docs/catalog.json.
 
 Verify against the installed SDK and current [integration docs](https://ravensight.io/docs/).
 This pack is a workflow, not an SDK implementation. Keep integrations compatible
@@ -258,10 +258,10 @@ public-build docs, including failures and retry behavior, before changing it.
   `get_doc` or the docs links, re-quote it here, re-stamp every reference header
   with the new catalog revision and date, and re-run `check-docs`.
 
-Quoted from `dashboard/how-the-built-in-detections-read-your-events` at revision `8bc81e5e5ac7b72b42de8c10ee6cc02451608cdddd81f2b35543dd20e6347a44`:
+Quoted from `dashboard/how-the-built-in-detections-read-your-events` at revision `a98c7f422ee6adc8516aa378f9cb1aea9aaa09c68eef9f2fb596a4b7a74940fe`:
 
 > - **Deaths** are events whose name contains `died`, `destroyed`, or `killed` (lowercase substring match, so `player_died` and `ship_destroyed` both count).
-> - **An explicit `rs_kind` comes first.** Set `rs_kind` in the event data to `level_start`, `level_complete`, `death`, or `none` and the level funnel, per-level deaths, journeys and the death count read it before the name. `none` opts an event out, so `checkout_started` with `rs_kind: "none"` is not a level start. An unknown value falls through to the name match. The five [typed kinds](https://www.ravensight.io/docs/#typed-events) are known values too, so a `purchase` is never read as a level by its name, and a `progression` event is read by its `rs_status`. Keys that start with `rs_` are reserved for Ravensight. The rage quit rules below read it too.
+> - **An explicit `rs_kind` comes first.** Set `rs_kind` in the event data to `level_start`, `level_complete`, `death`, or `none` and the level funnel, per-level deaths, journeys and the death count read it before the name. `none` opts an event out, so `checkout_started` with `rs_kind: "none"` is not a level start. An unknown value falls through to the name match. The five [typed kinds](https://www.ravensight.io/docs/dashboard/#typed-events) are known values too, so a `purchase` is never read as a level by its name, and a `progression` event is read by its `rs_status`. Keys that start with `rs_` are reserved for Ravensight. The rage quit rules below read it too.
 > - **Rage quit likely** flags a session with 3 or more deaths in its last 5 events, 3 or more deaths at the same level, or a final death followed by more than 10 minutes of silence inside the queried window. A death here is an event sent with `rs_kind: "death"`, whatever its name, so a `run_ended` event with `rs_kind: "death"` counts. Without a known `rs_kind`, the first two read `died`/`destroyed` names and the last reads a name containing `died`; `rs_kind: "none"` is never a death.
 > - **Potentially stuck** flags a session that repeats one event 10 or more times at the same level while the whole session has fewer than 20 events. The same event at a new level each time is movement, not stuck. Events with no place are grouped together, so ten repeats of a placeless event in a short session count; send a place or accept it.
 

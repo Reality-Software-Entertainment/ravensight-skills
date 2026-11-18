@@ -1,13 +1,25 @@
 ---
 name: ravensight-setup
-description: Guide Ravensight account, project and environment setup, choose and configure the engine SDK, and verify an initial integration. Use for first-time setup or missing integration prerequisites; detailed coverage audits belong to ravensight-instrumentation.
+description: Guide Ravensight account, game project/environment or company/Game Website setup, choose the appropriate SDK, and verify an initial integration. Use for first-time setup or missing integration prerequisites; detailed coverage audits belong to ravensight-instrumentation.
 metadata:
-  version: "0.2.2"
+  version: "0.2.3"
 ---
 
 # Set up Ravensight
 
-Establish the engine/runtime and existing SDK first. Reuse working setup. Ask only for missing choices that affect the task, especially the studio, project and environment. A project represents a title; environments have separate game identifiers, keys and event streams. Prefer development for verification.
+First distinguish gameplay from public website tracking. For gameplay, establish the engine/runtime and existing SDK first. Reuse working setup. Ask only for missing choices that affect the task, especially the studio, project and environment. A project represents a title; environments have separate game identifiers, keys and event streams. Prefer development for verification.
+
+## Website setup
+
+A company may have one Company Website and each game title one Game Website, shared across that title's environments. Reuse the existing title; never create a fake game for the company or treat the selected gameplay environment as a website scope. A separate `gt_site_` public website key does not replace a game ingest key or authenticate account MCP.
+
+Read [Website analytics](https://ravensight.io/docs/#websites). Discover the account server's current tools before using them. Where available, `get_site` reads the chosen scope; `create_site` creates missing configuration disabled by default; `get_site_installation` returns its public key/snippet; `update_site` enables the authorized setup; `verify_site` checks real accepted traffic without manufacturing an event. Use the exact returned schemas. `project_id` is a title slug; omit it for company scope only with a studio-wide token. Project-restricted tokens must name an allowed title. Setup/installation require website write permission and an owner-enabled write token; ordinary reports require website read permission. Public docs remain free and need no token.
+
+Install in the requested repository through its existing release process. Configure the exact origins that serve the site, including apex and www when applicable. Preserve consent, DNT/GPC, private-route exclusions and existing gameplay telemetry. Enable heatmaps only within the authorized public scope. No screenshot upload is needed to collect clicks/scroll or read the normalized density view. SDK methods and advertised server capabilities are authoritative; absent tools do not mean permission to create another account, bypass scope or claim delivery.
+
+For implementation or replacing another analytics provider, use `ravensight-instrumentation` and its website reference if installed; otherwise continue from the public website and JavaScript SDK docs. Check event/property/outcome parity before removing the old integration. A website request does not require the game onboarding steps below.
+
+## Gameplay setup
 
 For documentation lookup, discover the actual tools and their schemas. Search once for the engine, then fetch a returned document ID. Do not invent section filters, IDs, server names or limits. If the hosted catalog has no dedicated engine guide, read its platform-support entry and follow the SDK repository link it actually returns. State that the detailed guide came from the repository. Do not repeatedly read the full catalog looking for a missing section. Public documentation does not require an account or paid access.
 

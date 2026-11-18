@@ -1,7 +1,7 @@
 # Ravensight
 
 Guidance for game developers using [Ravensight](https://ravensight.io) to connect
-their game, improve instrumentation and work with studio evidence.
+their game or website, improve instrumentation and work with studio evidence.
 
 In Claude Code, install from the public marketplace:
 
@@ -12,12 +12,15 @@ In Claude Code, install from the public marketplace:
 This plugin includes five focused skills:
 
 - **ravensight** chooses the relevant workflow and carries context forward.
-- **ravensight-setup** guides account, project, SDK and first-event setup.
+- **ravensight-setup** guides account, project, company/Game Website, SDK and first-event setup.
 - **ravensight-connect** explains documentation and authorized studio connections.
-- **ravensight-instrumentation** audits and improves a game's event coverage.
-- **ravensight-studio** guides analytics, design, brainstorms, marketing and sales.
+- **ravensight-instrumentation** audits game/website event coverage and provider migration parity.
+- **ravensight-studio** guides player/website reports, heatmaps, design, marketing and sales.
 
-Ask Claude to help set up Ravensight for your game or improve its analytics.
+Ask Claude to help set up Ravensight for your game or website, or improve its analytics.
+Website tracking uses a separate anonymous key. Heatmap density does not require
+a screenshot upload; account MCP setup/report tools depend on the connected
+server’s advertised capabilities and your scoped authorization.
 Skills load when relevant. They do not run an autonomous pipeline or install
 game SDKs without your request. Playtesting is a separate optional package.
 

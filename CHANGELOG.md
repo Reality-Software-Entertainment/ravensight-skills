@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.2.2 (release candidate)
+## 0.2.3 (release candidate)
+
+- Add company/Game Website setup and anonymous website instrumentation guidance to the existing five skills, with separate credentials and preserved gameplay behavior.
+- Document scoped website MCP setup, verification, report discovery, heatmap page selection, safe event properties and saved goals/funnels.
+- Explain automatic normalized heatmap views, optional reference images, consent/private-route boundaries, event-meter and programmatic-call costs.
+- Require forward event/property/outcome parity before removing an existing provider; preserve historical migration as a separate user choice.
+- Describe optional explicit signup/checkout arrival or failure counts for compatible SDKs and collectors without capturing private page addresses or duplicating gameplay outcomes.
+- Refresh the existing public detection-document link and remove obsolete current-release holds while retaining dated release history.
+
+## 0.2.2 (published)
 
 - Align OpenAI listing metadata with current description limits and required capabilities, long description and HTTPS support contact.
 - Preserve the anonymous docs MCP, separate account authorization and optional Playtesting; add package-level publisher field regressions.
