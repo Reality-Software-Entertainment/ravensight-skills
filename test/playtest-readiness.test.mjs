@@ -38,26 +38,30 @@ test('its version matches package.json and its front matter names it', () => {
   assert.match(skill, new RegExp(`^name: ${name}$`, 'm'));
 });
 
-// Every flag the skill tells an agent to pass, against what the CLI has. A flag
-// that is not in 0.9.0 has to sit on a line marked "(next release)".
-const RELEASED = ['--help', '--game', '--from', '--show', '--driver', '--godot-project', '--build-url', '--personas', '--record-video', '--upload-video', '--long', '--realtime', '--skip-preflight', '--tier', '--minutes', '--focus', '--avoid', '--start'];
-const NEXT_ONLY = ['--save'];
-/** Flags released for `hosted run` and not yet for a local `run`. */
-const NEXT_FOR_LOCAL_RUN = ['--tier', '--minutes', '--focus', '--avoid', '--start'];
+// Every flag the skill tells an agent to pass, against what ravensight-playtest
+// 0.12.0 has. Native flags appear only in the Android and iOS section.
+const RELEASED = ['--help', '--game', '--from', '--show', '--driver', '--godot-project', '--build-url', '--personas', '--record-video', '--no-record-video', '--upload-video', '--long', '--realtime', '--skip-preflight', '--tier', '--minutes', '--focus', '--avoid', '--start', '--save'];
+const NATIVE = ['--native-build', '--device', '--platform', '--package', '--bundle-id', '--landscape', '--driver-config'];
 
-test('it names only flags the CLI has, and marks the ones from the next release', () => {
+test('it names only flags the CLI has, and native flags only for native builds', () => {
+  let section = '';
   for (const line of skill.split('\n')) {
+    if (line.startsWith('## ')) section = line;
+    assert.doesNotMatch(line, /next release/i, 'every flag is released in 0.12.0');
     for (const flag of line.match(/(?<![\w-])--[a-z][a-z-]+/g) || []) {
-      assert.ok(RELEASED.includes(flag) || NEXT_ONLY.includes(flag), `unknown flag ${flag}`);
-      if (NEXT_ONLY.includes(flag)) assert.match(line, /\(next release\)/, `${flag} is not released`);
+      assert.ok(RELEASED.includes(flag) || NATIVE.includes(flag), `unknown flag ${flag}`);
+      if (NATIVE.includes(flag) && flag !== '--driver-config') assert.ok(section === '## Android and iOS games' || /--native-build/.test(line), `${flag} outside the native section`);
     }
   }
-  const check = skill.split('\n').find(line => line.includes('check --driver godot_driver --godot-project'));
-  assert.match(check, /\(next release\)/, 'check has no --godot-project or --record-video in 0.9.0');
-  for (const line of skill.split('\n').filter(line => /`run --(tier|start)/.test(line) && !line.includes('hosted run --' + (line.match(/`run --(\w+)/) || [])[1]))) {
-    assert.match(line, /\(next release\)/);
-  }
-  assert.ok(NEXT_FOR_LOCAL_RUN.every(flag => RELEASED.includes(flag)));
+});
+
+test('the native section keeps the limits a developer has to know', () => {
+  const native = skill.slice(skill.indexOf('## Android and iOS games'), skill.indexOf('## 7.'));
+  assert.match(native, /Cloud playtests still need a web build/);
+  assert.match(native, /physical devices are not supported/);
+  assert.match(native, /real time/);
+  assert.match(native, /charges nothing/);
+  assert.doesNotMatch(skill, /held|unpublished|candidate|preview|under validation/i);
 });
 
 test('it never starts a paid run on its own, names no model vendor, and has no em or en dash', () => {

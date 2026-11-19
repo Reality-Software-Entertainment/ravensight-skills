@@ -3,6 +3,8 @@
 ## 0.2.5
 
 - Add the optional `ravensight-playtest-readiness` skill under `playtest/skills/`: what an agent does before a paid playtest (a complete brief, readable controls, a debug start, fonts, run length, the video flag, the free checks) and how it acts on the report's capability notes afterwards.
+- The readiness skill covers Android emulator and iOS Simulator builds from `ravensight-playtest` 0.12.0: device setup, the free check, real time play, Geri only, and keeping playtest sessions out of the game's numbers. Every flag it names is released, so the next release markers are gone.
+- The instrumentation reference describes native Android and iOS runs in 0.12.0 and still hands the playtest check to the developer.
 - Install it with `--skill ravensight-playtest-readiness`. `--skill all`, the Claude plugin and the directory bundle are unchanged and still carry no Playtest skill.
 
 ## 0.2.4 (release candidate)

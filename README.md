@@ -50,6 +50,9 @@ checks. After a run it reads the report's capability notes and says what to
 add. It runs nothing by itself and never starts a paid run without the user
 asking.
 
+It also covers Android emulator and iOS Simulator builds, which
+`ravensight-playtest` 0.12.0 and later play on the developer's own machine.
+
 It is never part of `--skill all`, the Claude plugin or the directory bundle.
 Install it by name:
 
