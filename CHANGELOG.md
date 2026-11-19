@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.2.3 (release candidate)
+## 0.2.4 (release candidate)
+
+- Setup and instrumentation hand Ravensight Doctor, the project's own tests and builds and the local playtest check to the developer: the agent gives the command, says what it checks and interprets the result the developer shares, and never runs them itself. A package test scans every built skill and reference for an instruction to run them.
+- The Claude directory README states what the docs connector receives and keeps, and describes the optional studio account connection.
+
+## 0.2.3 (published)
 
 - Add company/Game Website setup and anonymous website instrumentation guidance to the existing five skills, with separate credentials and preserved gameplay behavior.
 - Document scoped website MCP setup, verification, report discovery, heatmap page selection, safe event properties and saved goals/funnels.
