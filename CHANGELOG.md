@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.6 (release candidate, after the website release)
+
+- Website setup and reports find existing websites with `list_sites` where the account server offers it, then read one with `get_site`.
+- Website reports keep bot traffic apart from people: it is not billed, and totals for people and the bot count are quoted separately.
+- The studio skill names `get_latest_digest` and says a game's weekly digest can be switched off, so an empty digest is not proof of missing data.
+
 ## 0.2.5
 
 - Add the optional `ravensight-playtest-readiness` skill under `playtest/skills/`: what an agent does before a paid playtest (a complete brief, readable controls, a debug start, fonts, run length, the video flag, the free checks) and how it acts on the report's capability notes afterwards.

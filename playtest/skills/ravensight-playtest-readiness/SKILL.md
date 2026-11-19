@@ -2,7 +2,7 @@
 name: ravensight-playtest-readiness
 description: Prepare a game, its brief and the run command before a paid Ravensight playtest, so the playtesters (Geri and Freki) can read the screens, make the choice the developer wants and play a full session; then read the report's capability notes and fix what limited the run. Use when the user asks to run, set up or rerun a Ravensight playtest, or says a playtest came back short or thin. Optional; not part of the main Ravensight pack.
 metadata:
-  version: "0.2.5"
+  version: "0.2.6"
 ---
 
 # Get a full playtest run

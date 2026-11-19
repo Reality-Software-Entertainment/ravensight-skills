@@ -2,7 +2,7 @@
 name: ravensight-setup
 description: Guide Ravensight account, game project/environment or company/Game Website setup, choose the appropriate SDK, and verify an initial integration. Use for first-time setup or missing integration prerequisites; detailed coverage audits belong to ravensight-instrumentation.
 metadata:
-  version: "0.2.5"
+  version: "0.2.6"
 ---
 
 # Set up Ravensight
@@ -13,7 +13,7 @@ First distinguish gameplay from public website tracking. For gameplay, establish
 
 A company may have one Company Website and each game title one Game Website, shared across that title's environments. Reuse the existing title; never create a fake game for the company or treat the selected gameplay environment as a website scope. A separate `gt_site_` public website key does not replace a game ingest key or authenticate account MCP.
 
-Read [Website analytics](https://ravensight.io/docs/#websites). Discover the account server's current tools before using them. Where available, `get_site` reads the chosen scope; `create_site` creates missing configuration disabled by default; `get_site_installation` returns its public key/snippet; `update_site` enables the authorized setup; `verify_site` checks real accepted traffic without manufacturing an event. Use the exact returned schemas. `project_id` is a title slug; omit it for company scope only with a studio-wide token. Project-restricted tokens must name an allowed title. Setup/installation require website write permission and an owner-enabled write token; ordinary reports require website read permission. Public docs remain free and need no token.
+Read [Website analytics](https://ravensight.io/docs/#websites). Discover the account server's current tools before using them. Where available, `list_sites` lists the websites the token can see, and `get_site` reads the chosen scope; `create_site` creates missing configuration disabled by default; `get_site_installation` returns its public key/snippet; `update_site` enables the authorized setup; `verify_site` checks real accepted traffic without manufacturing an event. Use the exact returned schemas. `project_id` is a title slug; omit it for company scope only with a studio-wide token. Project-restricted tokens must name an allowed title. Setup/installation require website write permission and an owner-enabled write token; ordinary reports require website read permission. Public docs remain free and need no token.
 
 Install in the requested repository through its existing release process. Configure the exact origins that serve the site, including apex and www when applicable. Preserve consent, DNT/GPC, private-route exclusions and existing gameplay telemetry. Enable heatmaps only within the authorized public scope. No screenshot upload is needed to collect clicks/scroll or read the normalized density view. SDK methods and advertised server capabilities are authoritative; absent tools do not mean permission to create another account, bypass scope or claim delivery.
 
