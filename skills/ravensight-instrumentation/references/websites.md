@@ -110,6 +110,13 @@ as `/game`, `/dynasties` and `/settings`. Test public-to-private transitions and
 browser back navigation, not only direct page loads. Call `destroy()` when removing
 the client so handlers/timers do not accumulate.
 
+On a site that also hosts the game, the website tracker owns the public routes and
+the gameplay client owns the in-game routes only. Shared code is no reason to
+start both: never create the gameplay client on a public route, because creating it
+sends `game_started` and every visitor then counts as a player. See the web games
+section of the integration reference and
+[Web games: your website and your game](https://ravensight.io/docs/web-games/).
+
 Respect the site's actual consent policy. With `consent: 'opt_in'`, call
 `grantConsent()` only after the visitor's decision; use `optOut()` for withdrawal.
 Do not auto-grant consent to populate an empty chart. DNT/GPC are honored, and

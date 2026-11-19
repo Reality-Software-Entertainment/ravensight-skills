@@ -231,6 +231,44 @@ client ticket transport. Do not enable the requirement just because the UI shows
 it: the SDK does not automatically obtain a Steam ticket. Read the current
 public-build docs, including failures and retry behavior, before changing it.
 
+## Web games: website visitors are not players
+
+Read [Web games: your website and your game](https://ravensight.io/docs/web-games/)
+for any browser game that shares a site with public pages (landing, marketing,
+pricing, blog, sign in). The mistake to find first: the JavaScript SDK sends
+`game_started` as soon as the client is created, so a gameplay client created at
+app start, in a shared layout or on a public route opens a game session for every
+visitor, and every visitor counts as a player.
+
+- Create the gameplay client only on in-game routes, for a player who is playing,
+  and keep it when the player leaves for a public page. Never create it early to
+  "warm it up". Drop gameplay events tracked before it exists; do not queue them
+  for the next player.
+- Public routes use the website tracker (`createSiteTracker`, a `gt_site_` key),
+  which counts visitors with no player identity. Call its `destroy()` before an
+  in-game route. Sign in, sign up and account pages are public for this purpose.
+- A key shipped in a web page is public: use a `gt_pub_` key with an event
+  allowlist and a monthly ceiling, and keep `gt_live_` keys on the game's server.
+- With the game's own accounts, call `identify()` after sign in and at boot when
+  already signed in (ravensight 0.12.0 or later), and `resetIdentity()` on sign
+  out. Pass a random, high-entropy id, such as a random UUID or a random analytics
+  id stored with the account, never a sequential database key, an email, a name or
+  a handle: the game's salt reaches every browser, so a guessable id can be
+  matched. The hash is still a pseudonymous identifier; tell the developer to
+  declare it in the game's privacy notice. Other SDKs have the same pair under
+  their own spelling; check the installed version before using it.
+- How Ravensight reports it: the Data quality card on the Health page and
+  `visitorSessions` in `get_data_quality`. Of the devices first seen in the range
+  that sent a web event (real players only), it counts those that never sent more
+  than 3 events in any session, and is `flagged` when it is 95% sure at least 60%
+  did nothing past a session start (`not_enough_data` under 10 devices). Players
+  who leave at once look the same, so a flag means "check where the client is
+  created", not proof. After a fix the reading clears as the range moves past it;
+  stored events are not rewritten.
+- To confirm a fix, give the developer this check: open a public page in a private
+  window with the network panel open; no session request and no `game_started`
+  should appear until they sign in and open the game.
+
 ## Payload and analytics contract
 
 - The HTTP event envelope uses event, data, and optionally timestamp. Inspect
