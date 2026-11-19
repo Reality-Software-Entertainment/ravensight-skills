@@ -82,8 +82,8 @@ into durable storage (on iOS 0.3 and later `deviceId` is always durable and
 `playtestDeviceId` holds `pt-<run>`; on older iOS and the other SDKs `deviceId`
 reads `pt-<run>` in a playtest, so never mirror it while `isSynthetic` is true),
 the player opt-out and the game's stop-all switch are
-different controls, and a native persona run needs a free runner preflight before
-any paid job. If the public docs MCP is connected, use `search_docs` and
+different controls, and a native persona run needs a free runner preflight, which
+the developer runs, before any paid job. If the public docs MCP is connected, use `search_docs` and
 `get_doc` for current integration guidance, checking source links, revisions, and
 staleness. Keep the installed SDK authoritative for its available methods.
 When it is connected, also fetch `dashboard/how-the-built-in-detections-read-your-events`
@@ -146,12 +146,17 @@ Do not add privileged account credentials to a game build.
 
 ## 4. Verify and leave a reusable record
 
-Read [validation and deliverables](references/validation.md). Exercise relevant
-success, failure, retry, cancellation, repeat entry, and disabled-tracking paths.
-Check payload values and counts, not merely that a tracking function was called.
-Run appropriate existing tests and a build/type/engine check for edited code.
-Use local observation or a configured development environment; do not pollute
-production telemetry to prove a change. Do not provision accounts, start paid
+Read [validation and deliverables](references/validation.md). The developer runs
+the checks. Do not run the project's tests, builds, type or engine checks,
+Ravensight Doctor or the local playtest check yourself. For each check, give the
+developer the exact command from the project's own scripts and docs, say what it
+checks (which success, failure, retry, cancellation, repeat entry and
+disabled-tracking paths it exercises), then interpret the result the developer
+shares. Ask for payload values and counts, not merely that a tracking function
+was called. Where a path has no check, write one in the project's existing test
+framework or debug hooks and hand its command over the same way. Prefer local
+observation or a configured development environment; do not pollute production
+telemetry to prove a change. Do not provision accounts, start paid
 scans, upload source, push, or deploy unless the user authorized those actions.
 
 Keep code inspected, locally exercised, and observed arriving as distinct evidence

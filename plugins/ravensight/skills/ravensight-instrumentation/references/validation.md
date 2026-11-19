@@ -5,8 +5,12 @@
 ## Verification matrix
 
 Choose tests from changed behavior. A mock wrapper can capture event names,
-properties, order, and counts without network access. Use the project's existing
-engine test runner or smoke harness when practical.
+properties, order, and counts without network access. Write or update tests in
+the project's existing engine test runner or smoke harness; the developer runs
+them. Do not run the project's tests, builds, type or engine checks, Ravensight
+Doctor or the local playtest check yourself. Give the developer the exact command,
+say what it checks (which rows below and which acceptance matrix questions it
+covers), and interpret the result the developer shares.
 
 | Path | Evidence to check |
 | --- | --- |
@@ -21,11 +25,13 @@ engine test runner or smoke harness when practical.
 | Schema | numeric durations and amounts with units, bounded dimensions, actual serialized size |
 | Existing consumers | saved event meanings preserved; migration documented if needed |
 
-Run build/type/engine checks appropriate to the edited files. Do not construct a
-new test framework just to assert that a source string exists. Runtime observation
-can use SDK debug hooks or an existing transport stub. Use configured development
-credentials only when live delivery is authorized. Inspect the actual received
-payload in the correct environment before claiming delivery verified.
+Name the build, type or engine check that covers the edited files and hand it to
+the developer with the tests. Do not construct a new test framework just to assert
+that a source string exists. Runtime observation can use SDK debug hooks or an
+existing transport stub that the developer runs. Configured development
+credentials are used only when live delivery is authorized. Inspect the actual
+received payload in the correct environment, from the output the developer shares
+or an authorized read, before claiming delivery verified.
 
 ## Event catalog
 
@@ -51,13 +57,13 @@ verdicts and the completion report below, plus:
 - Existing events retained; defects fixed; new events/properties; deliberately
   deferred items and reasons. Distinguish implemented changes from recommendations.
 - Ordinary and busy-session volume estimates, input assumptions, and any sampling.
-- Checks performed and actual results. Label code-inspected, locally exercised,
-  and delivery-observed evidence separately.
+- Checks the developer ran and the results they shared. Label code-inspected,
+  locally exercised, and delivery-observed evidence separately.
 - Exact follow-up runtime steps, if unavailable, and release/migration implications.
 
 For an audit-only request, recommendations remain recommendations; do not mark them
-implemented. For an implementation request, finish reasonable local validation and
-state the remaining runtime gaps. Avoid promising that every possible player story
+implemented. For an implementation request, hand over the validation commands,
+interpret what the developer shares and state the remaining runtime gaps. Avoid promising that every possible player story
 is captured; report what the inspected and exercised scope actually supports.
 
 ## Three verdicts
@@ -104,7 +110,7 @@ volume estimate; doctor result, stated as a static check>
 <events retained, defects repaired, events and properties added, deferred items>
 
 ### Follow-up
-<exact runtime steps still to run, migrations, release implications>
+<exact commands the developer still needs to run, migrations, release implications>
 ```
 
 ## Review checklist

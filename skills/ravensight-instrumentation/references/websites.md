@@ -199,13 +199,14 @@ not one-hit collector events. Consult free `get_usage_rate` when available, keep
 reads bounded and reuse results. Setup, verification and report reads do not
 manufacture visitor events. Do not raise budgets or enable recharge implicitly.
 
-Validate local payloads/counts using fake keys and an intercepted collector or an
-existing development setup. Cover initial/SPA visits, campaigns/referrers,
+Prepare local validation of payloads/counts using fake keys and an intercepted
+collector or an existing development setup. The developer runs it: give them the
+command and say what it checks, then interpret the results they share. Cover initial/SPA visits, campaigns/referrers,
 allowlisted actions, consent refusal/revocation, DNT/GPC, private routes/forms,
 heatmap coordinates, capacity refusal, retry deduplication and teardown. Preserve
 existing game signup/purchase/session tests if the site shares a game runtime.
 For outcome-only mode, also verify no private URL/referrer in payloads or request
 headers, no automatic views, approved failure fields, and hide/exit delivery.
-Then distinguish code/test/build evidence from authorized live accepted traffic
+Then distinguish the developer's code/test/build evidence from authorized live accepted traffic
 and report readback. Report remaining schema or outcome gaps before calling the
 provider replacement complete.
