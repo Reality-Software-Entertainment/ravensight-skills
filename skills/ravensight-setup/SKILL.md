@@ -2,7 +2,7 @@
 name: ravensight-setup
 description: Guide Ravensight account, game project/environment or company/Game Website setup, choose the appropriate SDK, and verify an initial integration. Use for first-time setup or missing integration prerequisites; detailed coverage audits belong to ravensight-instrumentation.
 metadata:
-  version: "0.2.4"
+  version: "0.2.5"
 ---
 
 # Set up Ravensight

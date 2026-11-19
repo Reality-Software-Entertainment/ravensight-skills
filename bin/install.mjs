@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 const skillsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../skills');
 const available = ['ravensight', 'ravensight-setup', 'ravensight-connect', 'ravensight-studio', 'ravensight-instrumentation'];
+// Installed only when named. Never part of --skill all: the main pack has no Playtest dependency.
+const optional = { 'ravensight-playtest-readiness': resolve(dirname(fileURLToPath(import.meta.url)), '../playtest/skills') };
 const name = 'ravensight-instrumentation';
 const destinations = { codex: '.agents/skills', claude: '.claude/skills', copilot: '.github/skills', generic: 'skills' };
 const help = `Ravensight skill installer
@@ -15,6 +17,7 @@ Usage: ravensight-skills --agent codex|claude|copilot|generic --project PATH [--
 Copies SKILL.md, references, and agent metadata into the chosen project.
 Without --skill, installs instrumentation for backwards compatibility.
 Use --skill all for the complete Ravensight pack; Playtest is never included.
+--skill ravensight-playtest-readiness installs the optional skill that prepares a game for a paid playtest; it runs nothing.
 No network, credentials, global configuration, or game-code changes.
 Identical installs are a no-op. Different existing content is never overwritten unless you pass --force,
 which first copies it to ~/.ravensight/skills-backup/<project>-<hash>/${name}.bak-<timestamp>
@@ -72,7 +75,7 @@ function checkBackupParent(parent, trustedBase) {
 }
 function main(args, selected = name) {
   const name = selected;
-  const source = join(skillsRoot, name);
+  const source = join(optional[name] || skillsRoot, name);
   if (args.length === 0 || args.includes('--help')) { console.log(help); return; }
   let agent, project, backupDir, dryRun = false, force = false, noBackup = false;
   const seen = new Set();
@@ -196,7 +199,7 @@ function install(args) {
   let selected = name;
   if (indexes.length) {
     const i = indexes[0]; selected = args[i + 1];
-    if (!selected || (selected !== 'all' && !available.includes(selected))) throw new Error('Choose --skill ' + [...available, 'all'].join('|'));
+    if (!selected || (selected !== 'all' && !available.includes(selected) && !Object.hasOwn(optional, selected))) throw new Error('Choose --skill ' + [...available, 'all', ...Object.keys(optional)].join('|'));
     args = [...args.slice(0, i), ...args.slice(i + 2)];
   }
   const chosen = selected === 'all' ? available : [selected];

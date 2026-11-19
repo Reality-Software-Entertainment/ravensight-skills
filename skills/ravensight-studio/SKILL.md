@@ -2,7 +2,7 @@
 name: ravensight-studio
 description: Use connected Ravensight tools to answer player or website analytics questions and work with brainstorms, design documents, studio memory, marketing, Pulse, sales, experiments, exports and studio administration. Use for studio data workflows, not SDK installation or running AI playtests.
 metadata:
-  version: "0.2.4"
+  version: "0.2.5"
 ---
 
 # Work with your Ravensight studio

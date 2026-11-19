@@ -118,12 +118,17 @@ another native SDK; these semantics decide where code goes.
   relaunch are the exits a mobile player actually takes; have the developer test
   each on a device or simulator against the acceptance matrix's run join and share
   what the data shows. Exit events are not guaranteed on a kill.
-- **Preflight a native persona run before any paid job.** Native playtest adapters
-  are experimental until tested against the build and device. Do not run the
-  playtest CLI yourself. Give the developer the free `ravensight-playtest check`
-  command to run first and say what it checks: that the automation server,
-  simulator or device and the build launch. Ask them to confirm one local launch
-  reports a playtest session, interpret what they share, and only then suggest
+- **Preflight a native persona run before any paid job.** From
+  `ravensight-playtest` 0.12.0, Android emulator and iOS Simulator builds play
+  locally with `--driver android_driver|ios_driver --native-build PATH --device ID`
+  (an APK, or a Simulator APP on a Mac); other native targets still need a
+  `--driver-config` setup, and cloud playtests still need a web build. Do not run
+  the playtest CLI yourself. Give the developer the free `ravensight-playtest check`
+  command with the same flags and say what it checks: the build, the chosen
+  emulator or simulator, and that the app installs, opens and closes. The native
+  driver does not mark its sessions as playtest sessions, so ask the developer to
+  use a test build with analytics off or the SDK's synthetic mode, and to confirm
+  what one local launch reports. Interpret what they share, and only then suggest
   `ravensight-playtest run`, which charges. Do not start a paid job without the
   user's authorization.
 

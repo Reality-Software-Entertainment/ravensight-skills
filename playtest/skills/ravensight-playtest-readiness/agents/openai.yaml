@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ravensight Playtest Readiness"
+  short_description: "Prepare a game and its brief so a paid playtest covers the whole session"
+  default_prompt: "Use $ravensight-playtest-readiness to get my game ready for a Ravensight playtest."

@@ -1,6 +1,6 @@
 {
   "name": "ravensight-skills",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Customer-facing agent skills for Ravensight game, website and studio analytics",
   "type": "module",
   "license": "MIT",
@@ -10,6 +10,7 @@
   "files": [
     "bin",
     "skills",
+    "playtest",
     "README.md",
     "LICENSE",
     "plugin.json",

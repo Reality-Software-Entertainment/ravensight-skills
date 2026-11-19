@@ -39,6 +39,27 @@ or load every reference up front. A focused skill can be used by itself; missing
 siblings fall back to public documentation. No Playtest skills, runners, browsers
 or Playtest authentication are installed by this pack.
 
+## Optional: playtest readiness
+
+`ravensight-playtest-readiness` is a separate skill for studios that already use
+the optional `ravensight-playtest` CLI. It prepares a game before a paid run so
+the playtesters, Geri and Freki, can read the screens and play a full session:
+a complete brief, controls with text or accessible names, a debug start, fonts
+that cover the game's language, the run length, the video flag and the free
+checks. After a run it reads the report's capability notes and says what to
+add. It runs nothing by itself and never starts a paid run without the user
+asking.
+
+It also covers Android emulator and iOS Simulator builds, which
+`ravensight-playtest` 0.12.0 and later play on the developer's own machine.
+
+It is never part of `--skill all`, the Claude plugin or the directory bundle.
+Install it by name:
+
+```sh
+node bin/install.mjs --agent claude --project /path/to/game --skill ravensight-playtest-readiness
+```
+
 ## Claude plugin
 
 For local validation and use, from the repository root:
