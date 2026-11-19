@@ -115,14 +115,17 @@ another native SDK; these semantics decide where code goes.
   SDK's use only, never the app's. Transmit elapsed in-app intervals (durations the
   game computed), never raw uptime values.
 - **Lifecycle is part of the matrix.** Backgrounding, a swipe away and a cold
-  relaunch are the exits a mobile player actually takes; test each against the
-  acceptance matrix's run join. Exit events are not guaranteed on a kill.
+  relaunch are the exits a mobile player actually takes; have the developer test
+  each on a device or simulator against the acceptance matrix's run join and share
+  what the data shows. Exit events are not guaranteed on a kill.
 - **Preflight a native persona run before any paid job.** Native playtest adapters
-  are experimental until tested against the build and device. Run the free
-  `ravensight-playtest check` first, confirm the automation server, simulator or
-  device and the build launch, and confirm one local launch reports a playtest
-  session, before suggesting `ravensight-playtest run`, which charges. Do not
-  start a paid job without the user's authorization.
+  are experimental until tested against the build and device. Do not run the
+  playtest CLI yourself. Give the developer the free `ravensight-playtest check`
+  command to run first and say what it checks: that the automation server,
+  simulator or device and the build launch. Ask them to confirm one local launch
+  reports a playtest session, interpret what they share, and only then suggest
+  `ravensight-playtest run`, which charges. Do not start a paid job without the
+  user's authorization.
 
 ## Typed event helpers
 
@@ -233,8 +236,9 @@ public-build docs, including failures and retry behavior, before changing it.
   who has supplied their keys to also confirm game or project ids before writing
   code. Project and game ids are a release audit check: before shipping, confirm
   the key belongs to the intended game and environment. The free way to do that is
-  `ravensight-doctor --live` (0.4.2 and later prints "key belongs to <name>
-  (<slug>, <environment>)") or `GET /api/v1/settings` called with the key. Neither
+  for the developer to run `ravensight-doctor --live` (0.4.2 and later prints "key
+  belongs to <name> (<slug>, <environment>)") and share the line, or
+  `GET /api/v1/settings` called with the key. Neither
   spends a metered call or sends an event.
 - Event names have a 200-character ceiling; event data has an 8 KB ceiling and
   batches have at most 50 events in the documented protocol. Verify current
@@ -298,16 +302,22 @@ code edits. Neither MCP access nor this skill grants deployment permission.
 
 ## Doctor
 
-If the project already has ravensight-doctor, use its local documented JSON command
-for a static check. If installing it is in scope, the public docs specify:
+Ravensight Doctor is a static check the developer runs. Do not run it yourself,
+whether or not the project already has it. Give the developer the command, from
+the project's pinned version when it has one, otherwise as the public docs
+specify:
 
 ```sh
 npx --yes ravensight-doctor --json
 ```
 
-This command downloads and executes code. Prefer the project's pinned version when
-available. Run without --report for a local check; --report uploads results and
-requires authorization and configured credentials. Doctor complements source and
+Say what it checks and what it does: it downloads and runs the doctor on their
+machine, reads the source tree for the SDK, key placement and track calls, and
+prints findings with a status. Without `--report` the result stays on their
+machine; `--report` uploads it and needs their authorization and configured
+credentials. `--live` sends one test event with their development key and reads
+it back. Then interpret the result the developer shares: explain each finding and
+its fix, and what the check cannot see. Doctor complements source and
 runtime review; it does not establish complete journey coverage. A green (`pass`)
 doctor result is a static integration check of the source tree, never a
 certificate for the whole product: it says nothing about whether the acceptance
@@ -330,8 +340,9 @@ responses consume one ordinary event; conditional 304 responses are free.
 Active experiment labels `rs_exp_<key>` are attached by the SDK at enqueue time.
 Never supply these fields yourself or relabel old queue entries. Values and
 assignments must come from the same snapshot, including offline fallback.
-Test the gameplay effect and emitted assignment together in a development
-fixture, without generating production exposures. Read results through the
+Write a development fixture that tests the gameplay effect and emitted assignment
+together, without generating production exposures, and give the developer the
+command to run it. Read results through the
 studio workflow; implementation does not authorize a winner promotion.
 
 Doctor flags inspectable hand-written exposure labels but cannot verify runtime
