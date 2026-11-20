@@ -269,6 +269,16 @@ visitor, and every visitor counts as a player.
   window with the network panel open; no session request and no `game_started`
   should appear until they sign in and open the game.
 
+## Events from a game server
+
+A dedicated or authoritative game server that tracks for many players (JavaScript
+SDK 0.12.0, Node) creates one client with `platform: 'dedicated-server'` and an
+explicit `MemoryStorage`, and passes each player's pseudonymous id as the
+`deviceId` option of `track()`. The id is one the game generates, never an email
+or an account name. Each player needs a session of their own on the server side,
+which the SDK keeps per device id. A server key stays on the server and is never
+shipped in a client build. Check the installed SDK's signature before using it.
+
 ## Payload and analytics contract
 
 - The HTTP event envelope uses event, data, and optionally timestamp. Inspect

@@ -4,7 +4,7 @@ Current package status, checked November 19, 2026: npm 0.2.4 is the newest
 version once the November 18 release ships. Version 0.2.5 adds the optional
 playtest readiness skill and the Android and iOS playtest guidance. Version 0.2.6
 adds `list_sites`, bot traffic and the per-game digest switch to the website and
-studio guidance; publish it only after those platform features are live. Recheck the [npm registry](https://www.npmjs.com/package/ravensight-skills)
+studio guidance; publish it only after those platform features are live (they are, as of November 20). Recheck the [npm registry](https://www.npmjs.com/package/ravensight-skills)
 and exact candidate version immediately before publishing; never replace a
 published version with different bytes. Owner-authorized release work supersedes
 older blanket holds. External publisher registration/review and actual client
