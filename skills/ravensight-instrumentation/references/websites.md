@@ -55,13 +55,14 @@ user's direction. Avoid unintended dual events during cutover.
 
 ## Authorized setup through account MCP
 
-Read/write permissions differ. `get_site`, `verify_site` and `get_site_report`
-require `site:read`. `create_site`, `update_site`, `get_site_installation`,
+Read/write permissions differ. `list_sites` (where available), `get_site`,
+`verify_site` and `get_site_report` require `site:read`. `create_site`, `update_site`, `get_site_installation`,
 `save_site_goal` and `save_site_funnel` require `site:write` and an owner-enabled
 write token (`canWrite`). Installation-key retrieval is write-gated even though
 it reads configuration. An advertised tool does not bypass token scope.
 
-1. Resolve the intended company or existing title, then call `get_site` with that
+1. Resolve the intended company or existing title (where available, `list_sites`
+   shows the websites the token can see), then call `get_site` with that
    scope. It returns settings, goal/funnel definitions and supported report names,
    without the installation key. Reuse a configured website.
 2. If missing and creation is authorized, use `create_site` with `name`, `domains`
@@ -108,6 +109,13 @@ cover every application's private game path; include the actual boundaries such
 as `/game`, `/dynasties` and `/settings`. Test public-to-private transitions and
 browser back navigation, not only direct page loads. Call `destroy()` when removing
 the client so handlers/timers do not accumulate.
+
+On a site that also hosts the game, the website tracker owns the public routes and
+the gameplay client owns the in-game routes only. Shared code is no reason to
+start both: never create the gameplay client on a public route, because creating it
+sends `game_started` and every visitor then counts as a player. See the web games
+section of the integration reference and
+[Web games: your website and your game](https://ravensight.io/docs/web-games/).
 
 Respect the site's actual consent policy. With `consent: 'opt_in'`, call
 `grantConsent()` only after the visitor's decision; use `optOut()` for withdrawal.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.6 (2026-11-20)
+
+- Website setup and reports find existing websites with `list_sites` where the account server offers it, then read one with `get_site`.
+- Website reports keep bot traffic apart from people: it is not billed, and totals for people and the bot count are quoted separately.
+- The studio skill names `get_latest_digest` and says a game's weekly digest can be switched off, so an empty digest is not proof of missing data.
+- Web games: setup and instrumentation keep the game SDK inside the game and the website tracker on public pages, because a gameplay client created at app start or on a public route counts every website visitor as a player. The integration reference covers route gating, a `gt_pub_` key in a web page, `identify` on sign in with a random, high-entropy id and `resetIdentity` on sign out (ravensight 0.12.0), and how the data quality check reports the mistake (`visitorSessions`). Links the web games docs page, which is live.
+- The instrumentation reference explains tracking from a game server for many players with the JavaScript SDK (0.12.0): one client, a `MemoryStorage`, and each player's own pseudonymous id.
+
 ## 0.2.5
 
 - Add the optional `ravensight-playtest-readiness` skill under `playtest/skills/`: what an agent does before a paid playtest (a complete brief, readable controls, a debug start, fonts, run length, the video flag, the free checks) and how it acts on the report's capability notes afterwards.
