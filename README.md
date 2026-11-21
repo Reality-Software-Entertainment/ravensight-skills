@@ -285,3 +285,7 @@ installer's supported choices and tests aligned with the published catalog.
 Do not add private platform files, credentials, or internal operational guidance.
 
 Licensed under [MIT](LICENSE).
+
+## Contributing
+
+`npm install` installs the local checks (or run `npm run hooks:install`). The pre-push hook then runs the tests on Node 24 before every push, with a time limit, and refuses the push if they fail. CI runs nightly and on demand, not on pushes or pull requests, so this hook is where a change is checked first.

@@ -25,7 +25,9 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "npm run build && node --test test/*.test.mjs",
-    "check-docs": "node scripts/check-docs.mjs"
+    "check-docs": "node scripts/check-docs.mjs",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "node -e \"try{require('child_process').execFileSync('git',['config','core.hooksPath','.githooks'],{stdio:'ignore'})}catch(e){}\""
   },
   "homepage": "https://github.com/Reality-Software-Entertainment/ravensight-skills",
   "repository": {
